@@ -1,0 +1,3 @@
+[submodule "CS-690.wiki"]
+	path = CS-690.wiki
+	url = git@github.com:MystiriodisLykos/CS-690.wiki.git
