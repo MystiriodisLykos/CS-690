@@ -15,90 +15,58 @@ interface INestedMenu
 {
     public string MenuName { get; }
 
-    // TODO: I'd really like this value to be static, it shouldn't
-    // be unique between instances, but I'm having trouble actually
-    // getting access to the value.
-    // private static string _MenuName;
-
-    // public string MenuName => _MenuName;
-
     public void Run(Event Event)
     {
         throw new NotImplementedException();
     }
 }
 
-class EventPlanner {
-    public static void Run(Event Event) {
-        var action = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select what to Manage")
-                .AddChoices(new[] {
-                    "Guests"
-                })
-        );
+class MenuOfMenus
+{
+    protected List<INestedMenu> Menus;
+    protected string Prompt;
 
-        switch(action) {
-            case "Guests":
-                GuestPlanner.Run(Event);
-                break;
+    protected class BackMenu : INestedMenu
+    {
+        public string MenuName { get; }
+        public BackMenu(string text)
+        {
+            MenuName = text;
+        }
+    }
+    protected BackMenu BackOption;
+
+    public MenuOfMenus(List<INestedMenu> menus, string prompt, string backMenuOption = "Go Back")
+    {
+        Menus = menus;
+        Prompt = prompt;
+        BackOption = new BackMenu(backMenuOption);
+    }
+
+    public void Run(Event Event)
+    {
+        while(true) {
+            var menu = AnsiConsole.Prompt(
+                new SelectionPrompt<INestedMenu>()
+                    .Title(Prompt)
+                    .UseConverter(option => option.MenuName)
+                    .AddChoices(Menus)
+                    .AddChoices(new[] {BackOption})
+            );
+            if (menu == BackOption) return;
+            menu.Run(Event);
         }
     }
 }
-class GuestPlanner {
-    private class InviteGuest : INestedMenu {
-        public string MenuName { get; } = "Invite a Guest";
-        private static KnownGuests GuestList { get; } = Persistence.Guests.ReadGuests();
 
-        // fake guest to have a "no/quit" option in guest selection prompts.
-        private readonly static Guest fake_guest = new Guest("No/Create New");
+class EventPlanner {
 
-        public void Run(Event Event)
-        {
-            var name = AnsiConsole.Prompt(
-                new TextPrompt<string>("Enter Guests Name:")
-            );
-
-            var guest = new Guest(name);
-            var known_guests = GuestList.FindGuest(name);
-
-            var new_guest = true;
-
-            if (known_guests.Count() > 0)
-            {
-                var known_guest = AnsiConsole.Prompt(
-                    new SelectionPrompt<Guest>()
-                    .Title("A Guest with that name already exists in the system, use them?")
-                    .WrapAround()
-                    .AddChoices(known_guests)
-                    .AddChoices(new[] {fake_guest})
-                    .UseConverter(option => option.Name)
-                );
-
-                if (known_guest != fake_guest)
-                {
-                    guest = known_guest;
-                    new_guest = false;
-                }
-            }
-            if (new_guest)
-            {
-                GuestList.AddGuest(guest);
-                Persistence.Guests.WriteGuests(GuestList);
-            }
-            Event.InviteGuest(guest);
-            Persistence.EventData.WriteEvent(Event);
-        }
-    }
+    protected static MenuOfMenus Menu = new(
+        new List<INestedMenu> {new GuestPlanner()},
+        "Select what to Manage",
+        "Exit"
+    );
     public static void Run(Event Event) {
-        var action = AnsiConsole.Prompt(
-            new SelectionPrompt<INestedMenu>()
-                .Title("What would you like to do?")
-                .UseConverter(option => option.MenuName)
-                .AddChoices(new[] {
-                    new InviteGuest()
-                })
-        );
-        action.Run(Event);
+        Menu.Run(Event);
     }
 }
