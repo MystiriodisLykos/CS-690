@@ -14,14 +14,16 @@ static class Persist
 
     // Replicated from:
     //   https://blog.danskingdom.com/saving-and-loading-a-c-objects-data-to-an-xml-json-or-binary-file/
-    public static void WriteData<T>(string path, T data, bool append = false) where T : new()
+    // Modified to always rewrite the file and use a specfiic directory
+    public static void WriteData<T>(string path, T data) where T : new()
     {
-        Directory.CreateDirectory(directory);
+        var file_path = Path.Combine(directory, path);
+        Directory.CreateDirectory(Path.GetDirectoryName(directory));
         TextWriter writer = null;
         try
         {
             XmlSerializer serializer = new(typeof(T));
-            writer = new StreamWriter(Path.Combine(directory, path), append);
+            writer = new StreamWriter(file_path, false);
             serializer.Serialize(writer, data);
         } finally {
             writer?.Close();
@@ -29,12 +31,12 @@ static class Persist
     }
 
     public static T ReadData<T>(string path) where T : new() {
-        Directory.CreateDirectory(directory);
-        Console.WriteLine(directory);
+        var file_path = Path.Combine(directory, path);
+        Directory.CreateDirectory(Path.GetDirectoryName(directory));
         TextReader reader = null;
         try {
             XmlSerializer serializer = new(typeof(T));
-            reader = new StreamReader(Path.Combine(directory, path));
+            reader = new StreamReader(file_path);
             return (T)serializer.Deserialize(reader);
         } finally {
             reader?.Close();
