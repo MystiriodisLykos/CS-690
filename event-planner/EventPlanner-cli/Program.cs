@@ -80,7 +80,8 @@ class GuestPlanner {
                     guest = known_guest;
                     new_guest = false;
                 }
-            } else if (new_guest)
+            }
+            if (new_guest)
             {
                 GuestList.AddGuest(guest);
                 Persistence.Guests.WriteGuests(GuestList);
