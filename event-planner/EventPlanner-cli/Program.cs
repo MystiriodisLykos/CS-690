@@ -26,6 +26,7 @@ class MenuOfMenus
     protected List<INestedMenu> Menus;
     protected string Prompt;
 
+    // Fake menu to add a "back" or "exit" option to the menu of menus.
     protected class BackMenu : INestedMenu
     {
         public string MenuName { get; }
