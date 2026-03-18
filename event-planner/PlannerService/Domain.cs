@@ -3,10 +3,12 @@ namespace PlannerService;
 public class Guest
 {
     public string Name;
+    public Guid Guid;
 
     public Guest(string name)
     {
         Name = name;
+        Guid = Guid.NewGuid();
     }
 
     // Needed for serialization
@@ -16,10 +18,12 @@ public class Guest
 public class Invitation
 {
     public Guest Guest;
+    public Guid Guid;
 
     public Invitation(Guest guest)
     {
         Guest = guest;
+        Guid = Guid.NewGuid();
     }
 
     //  Needed for serialization
