@@ -31,15 +31,25 @@ public class Invitation
 {
     public Guest Guest;
     public Guid Guid;
+    public List<Note> Notes { get; }
 
     public Invitation(Guest guest)
     {
         Guest = guest;
         Guid = Guid.NewGuid();
+        Notes = [];
     }
 
     //  Needed for serialization
-    public Invitation() {}
+    public Invitation()
+    {
+        Notes = [];
+    }
+
+    public void AddNote(Note note)
+    {
+        Notes.Add(note);
+    }
 }
 
 

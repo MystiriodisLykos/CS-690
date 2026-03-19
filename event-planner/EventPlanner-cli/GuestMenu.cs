@@ -8,7 +8,7 @@ class GuestPlanner : INestedMenu {
     public string MenuName { get; } = "Guests";
 
     protected static MenuOfMenus Menu = new(
-        new List<INestedMenu> {new InviteGuest()},
+        new List<INestedMenu> {new InviteGuest(), new AddGuestNote()},
         "What would you like to do?"
     );
     public void Run(Event Event) {
@@ -57,6 +57,35 @@ class InviteGuest : INestedMenu {
             Persistence.Guests.WriteGuests(GuestList);
         }
         Event.InviteGuest(guest);
+        Persistence.EventData.WriteEvent(Event);
+    }
+}
+
+class AddGuestNote : INestedMenu
+{
+    public string MenuName { get; } = "Add A Note";
+
+    public void Run(Event Event)
+    {
+        if (Event.Guests.Count() == 0)
+        {
+            AnsiConsole.Confirm("Must have at least one Guest Invited to add Notes to Guests.");
+            return;
+        }
+
+        var invitation = AnsiConsole.Prompt(
+            new SelectionPrompt<Invitation>()
+            .Title("Select Guest to Add a Note to")
+            .WrapAround()
+            .AddChoices(Event.Guests)
+            .UseConverter(option => option.Guest.Name)
+        );
+
+
+        var text = AnsiConsole.Prompt(new TextPrompt<string>("Note:"));
+        var note = new Note();
+        Persistence.Notes.WriteNote(note, text);
+        invitation.AddNote(note);
         Persistence.EventData.WriteEvent(Event);
     }
 }
