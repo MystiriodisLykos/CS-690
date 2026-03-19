@@ -1,2 +1,4 @@
 <Solution>
+  <Project Path="EventPlanner-cli/EventPlanner-cli.csproj" />
+  <Project Path="PlannerService/PlannerService.csproj" />
 </Solution>
