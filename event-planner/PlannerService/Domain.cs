@@ -1,5 +1,17 @@
 namespace PlannerService;
 
+public class Note
+{
+    public Guid Guid;
+    public string Path;
+
+    public Note()
+    {
+        Guid = Guid.NewGuid();
+        Path = Guid.ToString();
+    }
+}
+
 public class Guest
 {
     public string Name;
@@ -19,15 +31,25 @@ public class Invitation
 {
     public Guest Guest;
     public Guid Guid;
+    public List<Note> Notes { get; }
 
     public Invitation(Guest guest)
     {
         Guest = guest;
         Guid = Guid.NewGuid();
+        Notes = [];
     }
 
     //  Needed for serialization
-    public Invitation() {}
+    public Invitation()
+    {
+        Notes = [];
+    }
+
+    public void AddNote(Note note)
+    {
+        Notes.Add(note);
+    }
 }
 
 
@@ -57,14 +79,21 @@ public class KnownGuests
 public class Event
 {
     public List<Invitation> Guests { get; }
+    public List<Note> Notes { get; }
 
     public Event()
     {
         Guests = [];
+        Notes = [];
     }
 
     public void InviteGuest(Guest guest)
     {
         Guests.Add(new Invitation(guest));
+    }
+
+    public void AddNote(Note note)
+    {
+        Notes.Add(note);
     }
 }

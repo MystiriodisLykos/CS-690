@@ -51,6 +51,7 @@ class MenuOfMenus
                 new SelectionPrompt<INestedMenu>()
                     .Title(Prompt)
                     .UseConverter(option => option.MenuName)
+                    .WrapAround()
                     .AddChoices(Menus)
                     .AddChoices(new[] {BackOption})
             );
@@ -63,7 +64,7 @@ class MenuOfMenus
 class EventPlanner {
 
     protected static MenuOfMenus Menu = new(
-        new List<INestedMenu> {new GuestPlanner()},
+        new List<INestedMenu> {new GuestPlanner(), new EventMenu()},
         "Select what to Manage",
         "Exit"
     );
