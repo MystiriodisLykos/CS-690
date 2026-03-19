@@ -1,18 +1,37 @@
 namespace PlannerService;
 
+public class Note
+{
+    public Guid Guid;
+    public string Path;
+
+    public Note()
+    {
+        Guid = Guid.NewGuid();
+        Path = Guid.ToString();
+    }
+}
+
 public class Guest
 {
     public string Name;
     public Guid Guid;
+    public List<Note> Notes { get; }
 
     public Guest(string name)
     {
         Name = name;
         Guid = Guid.NewGuid();
+        Notes = [];
     }
 
     // Needed for serialization
     public Guest() {}
+
+    public void AddNote(Note note)
+    {
+        Notes.Add(note);
+    }
 }
 
 public class Invitation
