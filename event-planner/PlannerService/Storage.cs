@@ -49,7 +49,6 @@ static class Persist
     public static T ReadData<T>(string path) where T : new() {
         var file_path = Path.Combine(directory, path);
         Directory.CreateDirectory(Path.GetDirectoryName(file_path));
-        Console.WriteLine(Path.GetDirectoryName(file_path));
         TextReader reader = null;
         try {
             XmlSerializer serializer = new(typeof(T));

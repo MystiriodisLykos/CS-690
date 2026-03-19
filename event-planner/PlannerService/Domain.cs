@@ -16,22 +16,15 @@ public class Guest
 {
     public string Name;
     public Guid Guid;
-    public List<Note> Notes { get; }
 
     public Guest(string name)
     {
         Name = name;
         Guid = Guid.NewGuid();
-        Notes = [];
     }
 
     // Needed for serialization
     public Guest() {}
-
-    public void AddNote(Note note)
-    {
-        Notes.Add(note);
-    }
 }
 
 public class Invitation
@@ -76,14 +69,21 @@ public class KnownGuests
 public class Event
 {
     public List<Invitation> Guests { get; }
+    public List<Note> Notes { get; }
 
     public Event()
     {
         Guests = [];
+        Notes = [];
     }
 
     public void InviteGuest(Guest guest)
     {
         Guests.Add(new Invitation(guest));
+    }
+
+    public void AddNote(Note note)
+    {
+        Notes.Add(note);
     }
 }
