@@ -22,8 +22,9 @@ class AddEventNote : INestedMenu
 
     public void Run(Event Event)
     {
-        var text = AnsiConsole.Prompt(new TextPrompt<string>("Note:"));
+        var text = AnsiConsole.Prompt(new TextPrompt<string>("Note:").AllowEmpty());
         var note = new Note();
+        if (string.IsNullOrWhiteSpace(text)) return;
         Persistence.Notes.WriteNote(note, text);
         Event.AddNote(note);
         Persistence.EventData.WriteEvent(Event);
