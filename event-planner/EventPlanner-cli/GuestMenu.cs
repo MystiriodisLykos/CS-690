@@ -69,7 +69,7 @@ class AddGuestNote : INestedMenu
     {
         if (Event.Guests.Count() == 0)
         {
-            AnsiConsole.Confirm("Must have at least one Guest Invited to add Notes to Guests.");
+            AnsiConsole.Confirm("Must have at least one Guest Invited to add Notes to Guests. (Enter to Continue)");
             return;
         }
 

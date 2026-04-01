@@ -2,6 +2,9 @@ namespace PlannerService.Storage;
 
 using System.Xml.Serialization;
 using System.IO;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 // using PlannerService;
 
@@ -26,7 +29,7 @@ static class Persist
     // Modified to always rewrite the file and use a specfiic directory
     public static void WriteData<T>(string path, T data) where T : new()
     {
-        var file_path = Path.Combine(directory, path);
+        var file_path = PersistPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(file_path));
         TextWriter writer = null;
         try
@@ -47,7 +50,7 @@ static class Persist
     }
 
     public static T ReadData<T>(string path) where T : new() {
-        var file_path = Path.Combine(directory, path);
+        var file_path = PersistPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(file_path));
         TextReader reader = null;
         try {
@@ -56,6 +59,31 @@ static class Persist
             return (T)serializer.Deserialize(reader);
         } finally {
             reader?.Close();
+        }
+    }
+
+    public static void RemoveData(string path) {
+        var file_path = PersistPath(path);
+        File.Delete(file_path);
+    }
+
+    public static string PersistPath(string path)
+    {
+        return Path.Combine(directory, path);
+    }
+
+    public static bool EditPath(string editor, string path, string args)
+    {
+        try
+        {
+            var process = new Process();
+            process.StartInfo.FileName = editor;
+            process.StartInfo.Arguments = path + args;
+            process.Start();
+            process.WaitForExit();
+            return true;
+        } catch (Win32Exception) {
+            return false;
         }
     }
 }
@@ -79,6 +107,39 @@ public static class Notes
         {
             return null;
         }
+    }
+
+    public static void RemoveNote(Note note)
+    {
+        var path = Path.Combine(NotesDir, note.Path);
+        try {
+            Persist.RemoveData(path);
+        } catch (FileNotFoundException) { }
+    }
+
+    public static string? EditNote(Note note)
+    {
+        var path = "\"" + Persist.PersistPath(Path.Combine(NotesDir, note.Path)) + "\"";
+
+        List<string> editors = ["notepad", "emacs", "vi"];
+
+        // Try to use vscode first because it has special args
+        if (! Persist.EditPath("code", path, " --wait"))
+        {
+            // If we can't open with vscode try some other common apps
+            foreach (var editor in editors)
+            {
+                if (Persist.EditPath(editor, path, ""))
+                {
+                    return ReadNote(note);
+                }
+            }
+        } else
+        {
+            return ReadNote(note);
+        }
+        // Found no editor apps, return
+        return null;
     }
 }
 

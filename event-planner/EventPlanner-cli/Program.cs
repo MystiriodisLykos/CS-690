@@ -4,6 +4,8 @@ using Spectre.Console;
 using PlannerService;
 using Persistence = PlannerService.Storage;
 
+using System.Diagnostics;
+
 class Program {
     static void Main(string[] args) {
         var Event = Persistence.EventData.ReadEvent();
