@@ -8,7 +8,6 @@ using System.Diagnostics;
 
 class Program {
     static void Main(string[] args) {
-        Process.Start("Program.cs");
         var Event = Persistence.EventData.ReadEvent();
         EventPlanner.Run(Event);
     }

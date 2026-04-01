@@ -3,6 +3,8 @@ namespace PlannerService.Storage;
 using System.Xml.Serialization;
 using System.IO;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 // using PlannerService;
 
@@ -64,6 +66,21 @@ static class Persist
     {
         return Path.Combine(directory, path);
     }
+
+    public static bool EditPath(string editor, string path, string args)
+    {
+        try
+        {
+            var process = new Process();
+            process.StartInfo.FileName = editor;
+            process.StartInfo.Arguments = path + args;
+            process.Start();
+            process.WaitForExit();
+            return true;
+        } catch (Win32Exception) {
+            return false;
+        }
+    }
 }
 
 public static class Notes
@@ -89,15 +106,24 @@ public static class Notes
 
     public static string? EditNote(Note note)
     {
-        var path = Persist.PersistPath(Path.Combine(NotesDir, note.Path));
+        var path = "\"" + Persist.PersistPath(Path.Combine(NotesDir, note.Path)) + "\"";
 
-        Console.WriteLine(@path);
+        List<string> editors = ["notepad", "emacs", "vi"];
 
-        path = @"/workspaces/CS-690/event-planner/EventPlanner-cli/Program.cs";
-
-        var process = new Process();
-
-        return ReadNote(note);
+        // Try to use vscode first because it has special args
+        if (! Persist.EditPath("code", path, " --wait"))
+        {
+            // If we can't open with vscode try some other common apps
+            foreach (var editor in editors)
+            {
+                if (Persist.EditPath(editor, path, ""))
+                {
+                    return ReadNote(note);
+                }
+            }
+        }
+        // Found no editor apps, return
+        return null;
     }
 }
 

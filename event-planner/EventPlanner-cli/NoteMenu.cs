@@ -38,9 +38,12 @@ class EditNote : INestedMenu
             .UseConverter(option => Persistence.Notes.ReadNote(option))
         );
 
-        Persistence.Notes.EditNote(note);
-
-        Console.WriteLine("Done");
+        if (Persistence.Notes.EditNote(note) == null)
+        {
+            AnsiConsole.Confirm(
+                "Could not find an editor, please ensure one of the following is installed an on the PATH (vscode, notepad, emacs, vi). (Enter to Continue)"
+            );
+        }
     }
 }
 
@@ -50,6 +53,7 @@ class ShowAllNotes : INestedMenu
 
     public void Run(Event Event)
     {
+        Console.Clear();
         var eventNotes = new Tree("Event Notes")
             .Guide(TreeGuide.BoldLine)
             .Style(Style.Parse("dim"));
