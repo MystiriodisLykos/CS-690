@@ -11,8 +11,8 @@ using System.ComponentModel;
 static class Persist
 {
     private static readonly string directory = Path.Combine(
-        // Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-        "./", // local testing
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+        // "./", // local testing
         ".cs-690.bd.event-planner"
     );
 
