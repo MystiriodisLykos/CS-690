@@ -2,14 +2,15 @@ namespace PlannerService.Storage;
 
 using System.Xml.Serialization;
 using System.IO;
+using System.Diagnostics;
 
 // using PlannerService;
 
 static class Persist
 {
     private static readonly string directory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-        // "./", // local testing
+        // Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+        "./", // local testing
         ".cs-690.bd.event-planner"
     );
 
@@ -26,7 +27,7 @@ static class Persist
     // Modified to always rewrite the file and use a specfiic directory
     public static void WriteData<T>(string path, T data) where T : new()
     {
-        var file_path = Path.Combine(directory, path);
+        var file_path = PersistPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(file_path));
         TextWriter writer = null;
         try
@@ -47,7 +48,7 @@ static class Persist
     }
 
     public static T ReadData<T>(string path) where T : new() {
-        var file_path = Path.Combine(directory, path);
+        var file_path = PersistPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(file_path));
         TextReader reader = null;
         try {
@@ -57,6 +58,11 @@ static class Persist
         } finally {
             reader?.Close();
         }
+    }
+
+    public static string PersistPath(string path)
+    {
+        return Path.Combine(directory, path);
     }
 }
 
@@ -79,6 +85,19 @@ public static class Notes
         {
             return null;
         }
+    }
+
+    public static string? EditNote(Note note)
+    {
+        var path = Persist.PersistPath(Path.Combine(NotesDir, note.Path));
+
+        Console.WriteLine(@path);
+
+        path = @"/workspaces/CS-690/event-planner/EventPlanner-cli/Program.cs";
+
+        var process = new Process();
+
+        return ReadNote(note);
     }
 }
 

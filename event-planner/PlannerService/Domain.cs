@@ -8,7 +8,7 @@ public class Note
     public Note()
     {
         Guid = Guid.NewGuid();
-        Path = Guid.ToString();
+        Path = Guid.ToString() + ".txt";
     }
 }
 
@@ -95,5 +95,15 @@ public class Event
     public void AddNote(Note note)
     {
         Notes.Add(note);
+    }
+
+    public IEnumerable<Note> GetAllGuestNotes()
+    {
+        IEnumerable<Note> GuestNotes = [];
+        foreach (var invitation in Guests)
+        {
+            GuestNotes = GuestNotes.Concat(invitation.Notes);
+        }
+        return GuestNotes;
     }
 }
