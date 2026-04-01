@@ -62,6 +62,11 @@ static class Persist
         }
     }
 
+    public static void RemoveData(string path) {
+        var file_path = PersistPath(path);
+        File.Delete(file_path);
+    }
+
     public static string PersistPath(string path)
     {
         return Path.Combine(directory, path);
@@ -104,6 +109,14 @@ public static class Notes
         }
     }
 
+    public static void RemoveNote(Note note)
+    {
+        var path = Path.Combine(NotesDir, note.Path);
+        try {
+            Persist.RemoveData(path);
+        } catch (FileNotFoundException) { }
+    }
+
     public static string? EditNote(Note note)
     {
         var path = "\"" + Persist.PersistPath(Path.Combine(NotesDir, note.Path)) + "\"";
@@ -121,6 +134,9 @@ public static class Notes
                     return ReadNote(note);
                 }
             }
+        } else
+        {
+            return ReadNote(note);
         }
         // Found no editor apps, return
         return null;

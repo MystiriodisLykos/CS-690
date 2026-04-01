@@ -27,7 +27,13 @@ public class Guest
     public Guest() {}
 }
 
-public class Invitation
+public interface INoteable
+{
+    public void AddNote(Note note);
+    public void RemoveNote(Note note);
+}
+
+public class Invitation : INoteable
 {
     public Guest Guest;
     public Guid Guid;
@@ -49,6 +55,11 @@ public class Invitation
     public void AddNote(Note note)
     {
         Notes.Add(note);
+    }
+
+    public void RemoveNote(Note note)
+    {
+        Notes.Remove(note);
     }
 }
 
@@ -76,7 +87,7 @@ public class KnownGuests
     }
 }
 
-public class Event
+public class Event : INoteable
 {
     public List<Invitation> Guests { get; }
     public List<Note> Notes { get; }
@@ -95,6 +106,11 @@ public class Event
     public void AddNote(Note note)
     {
         Notes.Add(note);
+    }
+
+    public void RemoveNote(Note note)
+    {
+        Notes.Remove(note);
     }
 
     public IEnumerable<Note> GetAllGuestNotes()

@@ -21,28 +21,70 @@ class EditNote : INestedMenu
 {
     public string MenuName { get; } = "Edit Note";
 
+    protected class NoteSelect<T, V>
+    {
+        string Name;
+        public T Data;
+        public V Group;
+        public NoteSelect(string name, T data, V group)
+        {
+            Name = name;
+            Data = data;
+            Group = group;
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+
     public void Run(Event Event)
     {
-        var notes = Event.Notes.Concat(Event.GetAllGuestNotes());
 
-        if (! notes.Any())
-        {
-            AnsiConsole.Confirm("Must have at least one Note before it can be editted. (Enter to Continue)");
-            return;
-        }
-        var note = AnsiConsole.Prompt(
-            new SelectionPrompt<Note>()
+        // Sentinal object for selection screen.
+        var EventSelect = new NoteSelect<Note, INoteable>("Event Notes", null, null);
+
+        var eventNotes = Event.Notes.Select(n => new NoteSelect<Note, INoteable>(
+            Persistence.Notes.ReadNote(n),
+            n,
+            Event));
+
+        var notePrompt = new SelectionPrompt<NoteSelect<Note, INoteable>>()
             .Title("Select Note to Edit")
             .WrapAround()
-            .AddChoices(notes)
-            .UseConverter(option => Persistence.Notes.ReadNote(option))
-        );
+            .Mode(SelectionMode.Leaf);
 
-        if (Persistence.Notes.EditNote(note) == null)
+        if (eventNotes.Any())
+            notePrompt.AddChoiceGroup(EventSelect, eventNotes);
+
+        foreach (var guest in Event.Guests)
+        {
+            var guestSelect = new NoteSelect<Note, INoteable>(guest.Guest.Name, null, null);
+            var guestNotes = guest.Notes.Select(n => new NoteSelect<Note, INoteable>(
+                Persistence.Notes.ReadNote(n), n, guest));
+            if (guestNotes.Any())
+                notePrompt.AddChoiceGroup(guestSelect, guestNotes);
+        }
+
+        var selection = AnsiConsole.Prompt(notePrompt);
+        var note = selection.Data;
+
+        var edited_note = Persistence.Notes.EditNote(note);
+
+        if (edited_note == null)
         {
             AnsiConsole.Confirm(
                 "Could not find an editor, please ensure one of the following is installed an on the PATH (vscode, notepad, emacs, vi). (Enter to Continue)"
             );
+        }
+        var text = Persistence.Notes.ReadNote(note);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            selection.Group.RemoveNote(note);
+            Persistence.Notes.RemoveNote(note);
+            Persistence.EventData.WriteEvent(Event);
         }
     }
 }
