@@ -1,9 +1,14 @@
 namespace PlannerService;
 
+using System.Runtime.Serialization;
+
+[DataContract(Name = "note")]
 public class Note
 {
-    public Guid Guid;
-    public string Path;
+    [DataMember(Name = "Guid")]
+    public Guid Guid { get; internal set; }
+    [DataMember(Name = "Path")]
+    public string Path { get; internal set; }
 
     public Note()
     {
@@ -12,118 +17,65 @@ public class Note
     }
 }
 
+[DataContract(Name = "guest")]
 public class Guest
 {
-    public string Name;
-    public Guid Guid;
+    [DataMember(Name = "Name")]
+    public string Name { get; internal set; }
+    [DataMember(Name = "Guid")]
+    public Guid Guid { get; internal set; }
 
     public Guest(string name)
     {
         Name = name;
         Guid = Guid.NewGuid();
     }
-
-    // Needed for serialization
-    public Guest() {}
 }
 
-public interface INoteable
+[DataContract(Name = "guests")]
+internal class KnownGuests
 {
-    public void AddNote(Note note);
-    public void RemoveNote(Note note);
+    [DataMember(Name = "GuestList")]
+    internal List<Guest> GuestList { get; set; }
+
+    internal KnownGuests() {
+	GuestList = [];
+    }
 }
 
-public class Invitation : INoteable
+public interface INoted
 {
-    public Guest Guest;
-    public Guid Guid;
     public List<Note> Notes { get; }
+}
 
-    public Invitation(Guest guest)
+[DataContract(Name = "invitation")]
+public class Invitation : INoted
+{
+    [DataMember(Name = "Guest")]
+    public Guest Guest { get; internal set; }
+    [DataMember(Name = "Notes")]
+    public List<Note> Notes { get; internal set; }
+    [DataMember(Name = "Guid")]
+    public Guid Guid { get; internal set; }
+
+    protected Invitation(Guest guest)
     {
         Guest = guest;
         Guid = Guid.NewGuid();
         Notes = [];
     }
-
-    //  Needed for serialization
-    public Invitation()
-    {
-        Notes = [];
-    }
-
-    public void AddNote(Note note)
-    {
-        Notes.Add(note);
-    }
-
-    public void RemoveNote(Note note)
-    {
-        Notes.Remove(note);
-    }
 }
 
-
-public class KnownGuests
+[DataContract(Name = "event")]
+public class Event : INoted
 {
-    public List<Guest> GuestList { get; set; }
+    [DataMember(Name = "Guests")]
+    public List<Invitation> Guests { get; internal set; }
+    [DataMember(Name = "Notes")]
+    public List<Note> Notes { get; internal set; }
 
-    public KnownGuests()
-    {
-        GuestList = [];
-    }
-
-    public IEnumerable<Guest> FindGuest(string name)
-    {
-        return
-            from guest in GuestList
-            where guest.Name == name
-            select guest;
-    }
-
-    public void AddGuest(Guest guest)
-    {
-        GuestList.Add(guest);
-    }
-}
-
-public class Event : INoteable
-{
-    public List<Invitation> Guests { get; }
-    public List<Note> Notes { get; }
-
-    public Event()
-    {
-        Guests = [];
-        Notes = [];
-    }
-
-    public void InviteGuest(Guest guest)
-    {
-	foreach (var invitation in Guests) {
-	    // One invitation per guest.
-	    if (invitation.Guest == guest) return;
-	}
-        Guests.Add(new Invitation(guest));
-    }
-
-    public void AddNote(Note note)
-    {
-        Notes.Add(note);
-    }
-
-    public void RemoveNote(Note note)
-    {
-        Notes.Remove(note);
-    }
-
-    public IEnumerable<Note> GetAllGuestNotes()
-    {
-        IEnumerable<Note> GuestNotes = [];
-        foreach (var invitation in Guests)
-        {
-            GuestNotes = GuestNotes.Concat(invitation.Notes);
-        }
-        return GuestNotes;
+    protected Event() {
+	Guests = [];
+	Notes = [];
     }
 }
