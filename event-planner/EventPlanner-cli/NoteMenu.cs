@@ -2,8 +2,6 @@ namespace EvenPlannerCLI;
 
 using Spectre.Console;
 using PlannerService;
-using Persistence = PlannerService.Storage;
-using System.Diagnostics;
 
 class NoteMenu : INestedMenu {
     public string MenuName { get; } = "Notes";
@@ -21,17 +19,25 @@ class EditNote : INestedMenu
 {
     public string MenuName { get; } = "Edit Note";
 
-    protected class NoteSelect<T, V>
+    protected class GroupSelect<T, V>
     {
-        string Name;
+	protected string Name;
         public T Data;
         public V Group;
-        public NoteSelect(string name, T data, V group)
+        public static GroupSelect<T, V> ChildSelect(string name, T data, V group)
         {
-            Name = name;
-            Data = data;
-            Group = group;
+	    var selector = new GroupSelect<T, V>();
+	    selector.Name = name;
+            selector.Data = data;
+            selector.Group = group;
+	    return selector;
         }
+
+	public static GroupSelect<T, V> ParentSelect(string name) {
+	    var selector = new GroupSelect<T, V>();
+	    selector.Name = name;
+	    return selector;
+	}
 
         public override string ToString()
         {
@@ -39,53 +45,45 @@ class EditNote : INestedMenu
         }
     }
 
-
     public void Run(Event Event)
     {
 
         // Sentinal object for selection screen.
-        var EventSelect = new NoteSelect<Note, INoteable>("Event Notes", null, null);
+        // var EventSelect = new NoteSelect<Note, INoteable>("Event Notes", null, null);
 
-        var eventNotes = Event.Notes.Select(n => new NoteSelect<Note, INoteable>(
-            Persistence.Notes.ReadNote(n),
-            n,
-            Event));
-
-        var notePrompt = new SelectionPrompt<NoteSelect<Note, INoteable>>()
+        var notePrompt = new SelectionPrompt<GroupSelect<Note, INoteable>>()
             .Title("Select Note to Edit")
             .WrapAround()
             .Mode(SelectionMode.Leaf);
 
-        if (eventNotes.Any())
-            notePrompt.AddChoiceGroup(EventSelect, eventNotes);
+	foreach (var ((name, noteable), notes) in Model.NoteLabeledTree(Event)) {
+	    // Sentinal object of selction screen, not actually selectable
+	    var group_ = GroupSelect<Note, INoteable>.ParentSelect(name);
 
-        foreach (var guest in Event.Guests)
-        {
-            var guestSelect = new NoteSelect<Note, INoteable>(guest.Guest.Name, null, null);
-            var guestNotes = guest.Notes.Select(n => new NoteSelect<Note, INoteable>(
-                Persistence.Notes.ReadNote(n), n, guest));
-            if (guestNotes.Any())
-                notePrompt.AddChoiceGroup(guestSelect, guestNotes);
-        }
+	    IEnumerable<GroupSelect<Note, INoteable>> notes_ = [];
+	    foreach (var (note_text, note_) in notes) {
+		notes_ = notes_.Append(GroupSelect<Note, INoteable>.ChildSelect(
+		    note_text, note_, noteable)
+		);
+	    }
+
+	    if (notes_.Any()) {
+		notePrompt.AddChoiceGroup(group_, notes_.ToList());
+	    }
+	}
 
         var selection = AnsiConsole.Prompt(notePrompt);
-        var note = selection.Data;
+	var note = selection.Data;
 
-        var edited_note = Persistence.Notes.EditNote(note);
-
-        if (edited_note == null)
+	var text = Model.EditNote(note);
+        if (text == null)
         {
             AnsiConsole.Confirm(
                 "Could not find an editor, please ensure one of the following is installed an on the PATH (vscode, notepad, emacs, vi). (Enter to Continue)"
             );
+	    return;
         }
-        var text = Persistence.Notes.ReadNote(note);
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            selection.Group.RemoveNote(note);
-            Persistence.Notes.RemoveNote(note);
-            Persistence.EventData.WriteEvent(Event);
-        }
+	Model.StoreNote(Event, selection.Group, note, text);
     }
 }
 
@@ -96,38 +94,19 @@ class ShowAllNotes : INestedMenu
     public void Run(Event Event)
     {
         Console.Clear();
-        var eventNotes = new Tree("Event Notes")
-            .Guide(TreeGuide.BoldLine)
-            .Style(Style.Parse("dim"));
-        
-        foreach (var note in Event.Notes)
-        {
-            var text = Persistence.Notes.ReadNote(note);
-            if (text != null)
-            {
-                eventNotes.AddNode(text);
+
+	var allNotes = new Tree("")
+	    .Guide(TreeGuide.BoldLine)
+	    .Style(Style.Parse("dim"));
+
+	foreach (var (node, notes) in Model.NoteLabelTree(Event)) {
+	    var nodeNotes = allNotes.AddNode($"Notes for {node}");
+
+	    foreach (var note in notes) {
+		nodeNotes.AddNode(note);
             }
-        }
-        
-        AnsiConsole.Write(eventNotes);
+	}
 
-        var allGuestNotes = new Tree("Guest Notes")
-            .Guide(TreeGuide.BoldLine)
-            .Style(Style.Parse("dim"));
-        
-        foreach (var invitation in Event.Guests)
-        {
-            var guestNotes = allGuestNotes.AddNode($"{invitation.Guest.Name} Notes");
-
-            foreach (var note in invitation.Notes) {
-                var text = Persistence.Notes.ReadNote(note);
-                if (text != null)
-                {
-                    guestNotes.AddNode(text);
-                }
-            }
-        }
-
-        AnsiConsole.Write(allGuestNotes);
+        AnsiConsole.Write(allNotes);
     }
 }

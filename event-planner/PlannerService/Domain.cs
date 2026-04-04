@@ -100,6 +100,10 @@ public class Event : INoteable
 
     public void InviteGuest(Guest guest)
     {
+	foreach (var invitation in Guests) {
+	    // One invitation per guest.
+	    if (invitation.Guest == guest) return;
+	}
         Guests.Add(new Invitation(guest));
     }
 
