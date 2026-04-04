@@ -60,18 +60,48 @@ public static class Persist
         return file_path;
     }
 
-    // public static bool EditPath(string editor, string path, string args)
-    // {
-    //     try
-    //     {
-    //         var process = new Process();
-    //         process.StartInfo.FileName = editor;
-    //         process.StartInfo.Arguments = path + args;
-    //         process.Start();
-    //         process.WaitForExit();
-    //         return true;
-    //     } catch (Win32Exception) {
-    //         return false;
-    //     }
-    // }
+    public static bool EditPath(string editor, string path, string args)
+    {
+	/* Use `editor` with `args` to edit the `path`
+	   returns boolean based on if the editing worked or not.
+	 */
+	var file_path = PersistPath(path);
+        try
+        {
+            var process = new Process();
+            process.StartInfo.FileName = editor;
+            process.StartInfo.Arguments = file_path + args;
+            process.Start();
+            process.WaitForExit();
+            return true;
+        } catch (Win32Exception) {
+            return false;
+        }
+    }
+
+    public static bool EditPath(string path) {
+	/* Edit the `path` trying a handful of common editors.
+	   returns true when editing was successful,
+	   false when editing doesn't work or we can't find an editor.
+	 */
+        List<string> editors = ["notepad", "emacs", "vi"];
+
+        // Try to use vscode first because it has special args
+        if (! EditPath("code", path, " --wait"))
+        {
+            // If we can't open with vscode try some other common apps
+            foreach (var editor in editors)
+            {
+                if (EditPath(editor, path, ""))
+                {
+                    return true;
+                }
+            }
+	} else {
+	    // vscode editing worked
+	    return true;
+	}
+	// Could not find an editor.
+	return false;
+    }
 }
