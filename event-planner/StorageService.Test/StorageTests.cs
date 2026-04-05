@@ -6,16 +6,16 @@ using System.Runtime.Serialization;
 public class StorageTests : IDisposable
 {
     private readonly string test_home = "test_home";
-    private readonly string test_data;
+
     public StorageTests() {
-	Environment.SetEnvironmentVariable(Persist.EnvHome, @test_home);
-	test_data = Path.Combine(test_home, Persist.DataFolder);
+	Environment.SetEnvironmentVariable(Storage.EnvHome, @test_home);
     }
 
     public void Dispose() {
-	var dir = new DirectoryInfo(test_data);
-	// foreach(var file in dir.GetFiles()) file.Delete();
-	dir.Delete(true);
+	if (Directory.Exists(test_home)) {
+	    var dir = new DirectoryInfo(test_home);
+	    dir.Delete(true);
+	}
     }
 
     [DataContract(Name = "test")]
@@ -35,45 +35,56 @@ public class StorageTests : IDisposable
     private TestData test_data1 = new TestData("test string", 2);
 
     [Fact]
-    public void Persist_writes_data_without_failing()
+    public void Storage_writes_data_without_failing()
     {
-	Persist.WriteData("data", test_data1);
+	Storage.WriteData("data", test_data1);
     }
 
     [Fact]
-    public void Persist_writes_text_without_failing()
+    public void Storage_writes_text_without_failing()
     {
-	Persist.WriteData("data", "test string");
+	Storage.WriteData("data", "test string");
     }
 
     [Fact]
-    public void Persist_writes_to_expected_folder()
+    public void Storage_writes_to_folders_folder()
     {
 	var file_path = Path.Combine("dataF", "data");
-	Persist.WriteData(file_path, "test string");
-	var out_path = Path.Combine(test_data, file_path);
+	Storage.WriteData(file_path, "test string");
 
-	Assert.True(File.Exists(out_path));
+	string read = Storage.ReadData(file_path);
+
+	Assert.Equal("test string", read);
     }
 
     [Fact]
-    public void Persist_read_write_is_identity() {
-	Persist.WriteData("data", test_data1);
-	var read = Persist.ReadData<TestData>("data");
+    public void Storage_read_write_is_identity() {
+	Storage.WriteData("data", test_data1);
+	var read = Storage.ReadData<TestData>("data");
 
 	Assert.Equal(test_data1.A, read.A);
 	Assert.Equal(test_data1.B, read.B);
     }
 
     [Fact]
-    public void Persist_overwrites_file() {
+    public void Storage_overwrites_file() {
 	var test_data2 = new TestData("other data", 20);
 
-	Persist.WriteData("data", test_data1);
-	Persist.WriteData("data", test_data2);
+	Storage.WriteData("data", test_data1);
+	Storage.WriteData("data", test_data2);
 
-	var read = Persist.ReadData<TestData>("data");
+	var read = Storage.ReadData<TestData>("data");
 	Assert.Equal(test_data2.A, read.A);
 	Assert.Equal(test_data2.B, read.B);
+    }
+
+    [Fact]
+    public void Storage_read_non_existent_is_null() {
+	Assert.Equal(null, Storage.ReadData("data-bad"));
+    }
+
+    [Fact]
+    public void Storage_read_non_existent_generic_is_null() {
+	Assert.Equal(null, Storage.ReadData<TestData>("data-bad"));
     }
 }

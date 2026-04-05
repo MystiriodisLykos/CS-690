@@ -1,9 +1,11 @@
 namespace StorageService;
 
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Xml;
 
-public static class Persist
+public static class Storage
 {
     public static readonly string EnvHome = "EVENT_PLANNER_HOME";
     public static readonly string DataFolder = ".cs-690.bd.event-planner";
@@ -26,18 +28,26 @@ public static class Persist
 	}
     }
 
-    public static string ReadData(string path)
+    public static string? ReadData(string path)
     {
-        var file_path = PersistPath(path);
-        Directory.CreateDirectory(Path.GetDirectoryName(file_path));
-        return File.ReadAllText(file_path);
+	try {
+	    var file_path = PersistPath(path);
+	    Directory.CreateDirectory(Path.GetDirectoryName(file_path));
+	    return File.ReadAllText(file_path);
+	} catch (FileNotFoundException) {
+	    return null;
+	}
     }
 
     public static T ReadData<T>(string path) {
-	var file_path = PersistPath(path);
-	DataContractSerializer serializer = new(typeof(T));
-	using (var reader = XmlReader.Create(file_path)) {
-	    return (T)serializer.ReadObject(reader);
+	try {
+	    var file_path = PersistPath(path);
+	    DataContractSerializer serializer = new(typeof(T));
+	    using (var reader = XmlReader.Create(file_path)) {
+		return (T)serializer.ReadObject(reader);
+	    }
+	} catch (FileNotFoundException) {
+	    return default(T);
 	}
     }
 
