@@ -4,32 +4,21 @@ using StorageService;
 
 public static class Notes
 {
-    protected static string NotePath(Note note) {
+    private static string NotePath(Note note) {
 	return Path.Combine("notes", note.Path);
     }
 
     public static string? ReadNote(Note note)
     {
-        try {
-            return Persist.ReadData(NotePath(note));
-        } catch (FileNotFoundException)
-        {
-            return null;
-        }
+	return Storage.ReadData(NotePath(note));
     }
 
-    public static void RemoveNote(Note note)
+    public static string? EditNote(Event Event, INoted On, Note note)
     {
-        try {
-            Persist.RemoveData(NotePath(note));
-        } catch (FileNotFoundException) { }
-    }
-
-    public static string? EditNote(Note note)
-    {
-        if (Persist.EditPath(NotePath(note)))
+        if (Storage.EditPath(NotePath(note)))
         {
-	    return ReadNote(note);
+	    var text = ReadNote(note);
+	    StoreNote(Event, On, note, text);
 	}
         // Found no editor apps, return
         return null;
@@ -45,13 +34,13 @@ public static class Notes
 	var path = NotePath(note);
 	/* Store note if associated text is not empty */
 	if (string.IsNullOrWhiteSpace(text)) {
-	    Persist.RemoveData(path);
+	    Storage.RemoveData(path);
 	    On.Notes.Remove(note);
 	} else {
-	    Persist.WriteData(path, text);
+	    Storage.WriteData(path, text);
 	    On.Notes.Add(note);
 	}
-	Persist.WriteData(Event);
+	Storage.WriteData("event", Event);
     }
 
     // public static IEnumerable<(A, IEnumerable<B>)> NoteTree<A, B>(

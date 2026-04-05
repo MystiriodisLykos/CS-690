@@ -5,15 +5,12 @@ using System.Runtime.Serialization;
 [DataContract(Name = "note")]
 public class Note
 {
-    [DataMember(Name = "Guid")]
-    public Guid Guid { get; internal set; }
     [DataMember(Name = "Path")]
     public string Path { get; internal set; }
 
     public Note()
     {
-        Guid = Guid.NewGuid();
-        Path = Guid.ToString() + ".txt";
+        Path = Guid.NewGuid() + ".txt";
     }
 }
 
@@ -45,7 +42,7 @@ internal class KnownGuests
 
 public interface INoted
 {
-    public List<Note> Notes { get; }
+    public HashSet<Note> Notes { get; }
 }
 
 [DataContract(Name = "invitation")]
@@ -54,15 +51,12 @@ public class Invitation : INoted
     [DataMember(Name = "Guest")]
     public Guest Guest { get; internal set; }
     [DataMember(Name = "Notes")]
-    public List<Note> Notes { get; internal set; }
-    [DataMember(Name = "Guid")]
-    public Guid Guid { get; internal set; }
+    public HashSet<Note> Notes { get; internal set; }
 
     protected Invitation(Guest guest)
     {
         Guest = guest;
-        Guid = Guid.NewGuid();
-        Notes = [];
+        Notes = new();
     }
 }
 
@@ -72,10 +66,10 @@ public class Event : INoted
     [DataMember(Name = "Guests")]
     public List<Invitation> Guests { get; internal set; }
     [DataMember(Name = "Notes")]
-    public List<Note> Notes { get; internal set; }
+    public HashSet<Note> Notes { get; internal set; }
 
-    protected Event() {
+    public Event() {
 	Guests = [];
-	Notes = [];
+	Notes = new();
     }
 }
