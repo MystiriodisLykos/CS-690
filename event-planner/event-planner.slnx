@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="EventPlanner-cli/EventPlanner-cli.csproj" />
+  <Project Path="PlannerService.Test/PlannerService.Test.csproj" />
   <Project Path="PlannerService/PlannerService.csproj" />
+  <Project Path="StorageService.Test/StorageService.Test.csproj" />
+  <Project Path="StorageService.Test/MockStorageService.Test.csproj" />
 </Solution>

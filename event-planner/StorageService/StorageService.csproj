@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(StorageService)' != ''">
-    <ProjectReference Include="$(StorageService)" />
-  </ItemGroup>
-
 </Project>

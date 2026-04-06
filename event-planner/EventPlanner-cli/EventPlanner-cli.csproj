@@ -1,20 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\PlannerService\PlannerService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Spectre.Console" Version="0.54.0" />
-    <PackageReference Include="Spectre.Console.Cli" Version="0.53.1" />
-  </ItemGroup>
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EventPlanner_cli</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <StorageService Condition="'$(StorageService)'==''">
+	..\StorageService\StorageService.csproj
+    </StorageService>
+    <CustomConsole Condition="'$(CustomConsole)'==''">NO</CustomConsole>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PlannerService\PlannerService.csproj">
+      <AdditionalProperties>
+	StorageService=$(StorageService)
+      </AdditionalProperties>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CustomConsole)' != 'NO'">
+    <ProjectReference Include="$(CustomConsole)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CustomConsole)' == 'NO'">
+    <PackageReference Include="Spectre.Console" Version="0.54.0" />
+  </ItemGroup>
 
 </Project>

@@ -1,8 +1,6 @@
-namespace EvenPlannerCLI;
+namespace EventPlannerCLI;
 
-using Spectre.Console;
 using PlannerService;
-using Persistence = PlannerService.Storage;
 
 class EventMenu : INestedMenu {
     public string MenuName { get; } = "Event";
@@ -19,14 +17,10 @@ class EventMenu : INestedMenu {
 class AddEventNote : INestedMenu
 {
     public string MenuName { get; } = "Add A Note";
+    protected static readonly AddNoteMenu noteMenu = new AddNoteMenu();
 
     public void Run(Event Event)
     {
-        var text = AnsiConsole.Prompt(new TextPrompt<string>("Note:").AllowEmpty());
-        var note = new Note();
-        if (string.IsNullOrWhiteSpace(text)) return;
-        Persistence.Notes.WriteNote(note, text);
-        Event.AddNote(note);
-        Persistence.EventData.WriteEvent(Event);
+	noteMenu.Run(Event, Event);
     }
 }

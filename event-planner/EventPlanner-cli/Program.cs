@@ -1,14 +1,13 @@
-﻿namespace EvenPlannerCLI;
+﻿namespace EventPlannerCLI;
 
 using Spectre.Console;
 using PlannerService;
-using Persistence = PlannerService.Storage;
 
 using System.Diagnostics;
 
 class Program {
     static void Main(string[] args) {
-        var Event = Persistence.EventData.ReadEvent();
+        var Event = Events.Read();
         EventPlanner.Run(Event);
     }
 }
@@ -66,7 +65,11 @@ class MenuOfMenus
 class EventPlanner {
 
     protected static MenuOfMenus Menu = new(
-        new List<INestedMenu> {new GuestPlanner(), new EventMenu(), new NoteMenu()},
+        new List<INestedMenu> {
+	    new GuestPlanner(),
+	    new EventMenu(),
+	    new NoteMenu()
+			      },
         "Select what to Manage",
         "Exit"
     );
