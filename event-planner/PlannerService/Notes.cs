@@ -32,6 +32,10 @@ public static class Notes
 	string text)
     {
 	/* Store the `note` `On` with `text` for `Event` */
+	// TODO: do I need to pass `note` or can I make a new one on the fly?
+	//   Check call sites.
+	//   In fact I think notes should only be returned objects, so that
+	//   Only notes with existing text have associated objects.
 	var path = NotePath(note);
 	/* Store note if associated text is not empty */
 	if (string.IsNullOrWhiteSpace(text)) {
