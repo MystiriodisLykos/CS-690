@@ -73,4 +73,14 @@ public class NoteTests : IDisposable
 
 	Assert.Equal("b", Notes.ReadNote(note1));
     }
+
+    [Fact]
+    public void Note_edit_returns_text() {
+	Notes.StoreNote(testEvent, testEvent, note1, "a");
+
+	Storage.SetEditCallback(t => "b");
+
+	var result = Notes.EditNote(testEvent, testEvent, note1);
+	Assert.Equal("b", result);
+    }
 }

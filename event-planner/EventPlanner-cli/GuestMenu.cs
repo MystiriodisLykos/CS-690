@@ -28,11 +28,9 @@ class InviteGuest : INestedMenu {
         );
 
         var guest = new Guest(name);
-        var known_guests = Model.KnownGuests(guest);
+        var known_guests = GuestList.KnownGuests(guest);
 
-        var new_guest = true;
-
-        if (known_guests.Count() > 0)
+        if (known_guests.Any())
         {
             var known_guest = AnsiConsole.Prompt(
                 new SelectionPrompt<Guest>()
@@ -46,10 +44,9 @@ class InviteGuest : INestedMenu {
             if (known_guest != fake_guest)
             {
                 guest = known_guest;
-                new_guest = false;
             }
         }
-	Model.InviteGuest(Event, guest, new_guest);
+	Events.InviteGuest(Event, guest);
     }
 }
 
@@ -60,7 +57,7 @@ class AddGuestNote : INestedMenu
 
     public void Run(Event Event)
     {
-        if (Event.Guests.Count() == 0)
+        if (! Event.Guests.Any())
         {
             AnsiConsole.Confirm("Must have at least one Guest Invited to add Notes to Guests. (Enter to Continue)");
             return;

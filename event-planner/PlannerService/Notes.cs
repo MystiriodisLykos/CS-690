@@ -19,6 +19,7 @@ public static class Notes
         {
 	    var text = ReadNote(note);
 	    StoreNote(Event, On, note, text);
+	    return text;
 	}
         // Found no editor apps, return
         return null;

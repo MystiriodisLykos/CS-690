@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\PlannerService\PlannerService.csproj" />
+    <ProjectReference Include="..\PlannerService\PlannerService.csproj">
+      <AdditionalProperties>
+	StorageService=..\StorageService\StorageService.csproj;
+      </AdditionalProperties>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

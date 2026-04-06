@@ -8,6 +8,7 @@ public static class Events {
     }
 
     public static Event Read() {
+	GuestList.Load();
 	return Storage.ReadData<Event>("event") ?? new();
     }
 
