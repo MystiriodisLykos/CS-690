@@ -1,4 +1,4 @@
-namespace EvenPlannerCLI;
+namespace EventPlannerCLI;
 
 using Spectre.Console;
 using PlannerService;
@@ -48,21 +48,18 @@ class EditNote : INestedMenu
     public void Run(Event Event)
     {
 
-        // Sentinal object for selection screen.
-        // var EventSelect = new NoteSelect<Note, INoteable>("Event Notes", null, null);
-
-        var notePrompt = new SelectionPrompt<GroupSelect<Note, INoteable>>()
+        var notePrompt = new SelectionPrompt<GroupSelect<Note, INoted>>()
             .Title("Select Note to Edit")
             .WrapAround()
             .Mode(SelectionMode.Leaf);
 
-	foreach (var ((name, noteable), notes) in Model.NoteLabeledTree(Event)) {
+	foreach (var ((name, noteable), notes) in Notes.NoteLabeledTree(Event)) {
 	    // Sentinal object of selction screen, not actually selectable
-	    var group_ = GroupSelect<Note, INoteable>.ParentSelect(name);
+	    var group_ = GroupSelect<Note, INoted>.ParentSelect(name);
 
-	    IEnumerable<GroupSelect<Note, INoteable>> notes_ = [];
+	    IEnumerable<GroupSelect<Note, INoted>> notes_ = [];
 	    foreach (var (note_text, note_) in notes) {
-		notes_ = notes_.Append(GroupSelect<Note, INoteable>.ChildSelect(
+		notes_ = notes_.Append(GroupSelect<Note, INoted>.ChildSelect(
 		    note_text, note_, noteable)
 		);
 	    }
@@ -74,8 +71,9 @@ class EditNote : INestedMenu
 
         var selection = AnsiConsole.Prompt(notePrompt);
 	var note = selection.Data;
+	var noted = selection.Group;
 
-	var text = Model.EditNote(note);
+	var text = Notes.EditNote(Event, noted, note);
         if (text == null)
         {
             AnsiConsole.Confirm(
@@ -83,7 +81,6 @@ class EditNote : INestedMenu
             );
 	    return;
         }
-	Model.StoreNote(Event, selection.Group, note, text);
     }
 }
 
@@ -99,7 +96,7 @@ class ShowAllNotes : INestedMenu
 	    .Guide(TreeGuide.BoldLine)
 	    .Style(Style.Parse("dim"));
 
-	foreach (var (node, notes) in Model.NoteLabelTree(Event)) {
+	foreach (var (node, notes) in Notes.NoteLabelTree(Event)) {
 	    var nodeNotes = allNotes.AddNode($"Notes for {node}");
 
 	    foreach (var note in notes) {

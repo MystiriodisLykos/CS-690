@@ -9,9 +9,7 @@
     <StorageService Condition="'$(StorageService)'==''">
 	..\StorageService\StorageService.csproj
     </StorageService>
-    <CustomConsole Condition="'$(CustomConsole)'==''">
-        NO
-    </CustomConsole>
+    <CustomConsole Condition="'$(CustomConsole)'==''">NO</CustomConsole>
   </PropertyGroup>
 
   <ItemGroup>

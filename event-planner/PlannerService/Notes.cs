@@ -44,47 +44,47 @@ public static class Notes
 	Events.Save(Event);
     }
 
-    // public static IEnumerable<(A, IEnumerable<B>)> NoteTree<A, B>(
-    // 	Func<Event, A> project_event,
-    // 	Func<Invitation, A> project_invitation,
-    // 	Func<Note, B> project_note,
-    // 	Event Event
-    // ) {
-    // 	/* Build an enumerable grouping notes by the Event/Guest.
-    // 	   Projected with the associated functions
-    // 	*/
-    // 	var event_notes = (project_event(Event),
-    // 			   from note in Event.Notes
-    // 			   select project_note(note));
+    public static IEnumerable<(A, IEnumerable<B>)> NoteTree<A, B>(
+	Func<Event, A> project_event,
+	Func<Invitation, A> project_invitation,
+	Func<Note, B> project_note,
+	Event Event
+    ) {
+	/* Build an enumerable grouping notes by the Event/Guest.
+	   Projected with the associated functions
+	*/
+	var event_notes = (project_event(Event),
+			   from note in Event.Notes
+			   select project_note(note));
 
-    // 	var guest_notes = 
-    // 	    from guest in Event.Guests
-    // 	    select (project_invitation(guest),
-    // 		    from note in guest.Notes
-    // 		    select project_note(note));
+	var guest_notes = 
+	    from guest in Event.Guests
+	    select (project_invitation(guest),
+		    from note in guest.Notes
+		    select project_note(note));
 
-    // 	return guest_notes.Prepend(event_notes);
-    // }
+	return guest_notes.Prepend(event_notes);
+    }
 
-    // public static IEnumerable<((string, INoted), IEnumerable<(string, Note)>)> NoteLabeledTree(Event Event) {
-    // 	/* Build an enumerable grouping of notes by the Event/Guest.
-    // 	   Encluding a string representation of the object.
-    // 	 */
-    // 	return NoteTree<(string, INoted), (string, Note)>(
-    // 	    e => ("event", e),
-    // 	    i => (i.Guest.Name, i),
-    // 	    n => (Model.ReadNote(n), n),
-    // 	    Event);
-    // }
+    public static IEnumerable<((string, INoted), IEnumerable<(string, Note)>)> NoteLabeledTree(Event Event) {
+	/* Build an enumerable grouping of notes by the Event/Guest.
+	   Encluding a string representation of the object.
+	 */
+	return NoteTree<(string, INoted), (string, Note)>(
+	    e => ("event", e),
+	    i => (i.Guest.Name, i),
+	    n => (ReadNote(n), n),
+	    Event);
+    }
 
-    // public static IEnumerable<(string, IEnumerable<string>)> NoteLabelTree(Event Event) {
-    // 	/* Build an enumerable grouping of note text by the Event/Guest name.
-    // 	   Not be be confused with NoteLabeledTree.
-    // 	 */
-    // 	return NoteTree(
-    // 	    e => "event",
-    // 	    i => i.Guest.Name,
-    // 	    n => Model.ReadNote(n),
-    // 	    Event);
-    // }
+    public static IEnumerable<(string, IEnumerable<string>)> NoteLabelTree(Event Event) {
+	/* Build an enumerable grouping of note text by the Event/Guest name.
+	   Not be be confused with NoteLabeledTree.
+	 */
+	return NoteTree(
+	    e => "event",
+	    i => i.Guest.Name,
+	    n => ReadNote(n),
+	    Event);
+    }
 }

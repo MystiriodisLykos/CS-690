@@ -12,13 +12,15 @@ public static class Events {
 	return Storage.ReadData<Event>("event") ?? new();
     }
 
-    public static void InviteGuest(Event Event, Guest Guest) {
+    public static Invitation InviteGuest(Event Event, Guest Guest) {
 	GuestList.AddGuest(Guest);
 	foreach (var invitation in Event.Guests) {
 	    // Only one invite per guest
-	    if (invitation.Guest == Guest) return;
+	    if (invitation.Guest == Guest) return invitation;
 	}
-	Event.Guests.Add(new Invitation(Guest));
+	var new_invitation = new Invitation(Guest);
+	Event.Guests.Add(new_invitation);
         Save(Event);
+	return new_invitation;
     }
 }

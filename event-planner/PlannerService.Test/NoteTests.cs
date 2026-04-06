@@ -7,10 +7,12 @@ using StorageService;
 public class NoteTests : IDisposable
 {
     private Note note1;
+    private Guest guest1;
     private Event testEvent;
 
     public NoteTests() {
         note1 = new Note();
+	guest1 = new Guest("guest1");
 	testEvent = Events.Read();
     }
 
@@ -82,5 +84,60 @@ public class NoteTests : IDisposable
 
 	var result = Notes.EditNote(testEvent, testEvent, note1);
 	Assert.Equal("b", result);
+    }
+
+    [Fact]
+    public void Notes_can_be_added_to_guest_invitations() {
+	var invitation = Events.InviteGuest(testEvent, guest1);
+	Notes.StoreNote(testEvent, invitation, note1, "guest note");
+
+	Assert.Equal("guest note", Notes.ReadNote(note1));
+	Assert.Contains(note1, invitation.Notes);
+    }
+
+    [Fact]
+    public void Noted_labled_tree_puts_note_text_as_label() {
+	var invitation = Events.InviteGuest(testEvent, guest1);
+	Notes.StoreNote(testEvent, invitation, note1, "guest note");
+	var note2 = new Note();
+	Notes.StoreNote(testEvent, testEvent, note2, "event note");
+
+	foreach (var (_, notes) in Notes.NoteLabeledTree(testEvent)) {
+	    foreach (var (label, note) in notes) {
+		Assert.Equal(Notes.ReadNote(note), label);
+	    }
+	}
+    }
+
+    [Fact]
+    public void Noted_labled_tree_puts_noted_names_as_label() {
+	var guest1 = new Guest("Guest 1");
+	var invitation = Events.InviteGuest(testEvent, guest1);
+	Notes.StoreNote(testEvent, invitation, note1, "guest note");
+	var note2 = new Note();
+	Notes.StoreNote(testEvent, testEvent, note2, "event note");
+
+	foreach (var ((label, noted), _) in Notes.NoteLabeledTree(testEvent)) {
+	    if (noted == guest1) {
+		Assert.Equal(guest1.Name, label);
+	    } else if (noted == testEvent) {
+		Assert.Equal("event", label);
+	    }
+	}
+    }
+
+    [Fact]
+    public void Noted_labled_tree_puts_notes_under_corret_noted() {
+	var guest1 = new Guest("Guest 1");
+	var invitation = Events.InviteGuest(testEvent, guest1);
+	Notes.StoreNote(testEvent, invitation, note1, "guest note");
+	var note2 = new Note();
+	Notes.StoreNote(testEvent, testEvent, note2, "event note");
+
+	foreach (var ((_, noted), notes) in Notes.NoteLabeledTree(testEvent)) {
+	    foreach (var (label, note) in notes) {
+		Assert.Contains(note, noted.Notes);
+	    }
+	}
     }
 }

@@ -67,8 +67,8 @@ class EventPlanner {
     protected static MenuOfMenus Menu = new(
         new List<INestedMenu> {
 	    new GuestPlanner(),
-	    new EventMenu()
-	    // new NoteMenu()
+	    new EventMenu(),
+	    new NoteMenu()
 			      },
         "Select what to Manage",
         "Exit"
