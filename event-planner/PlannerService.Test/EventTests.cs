@@ -30,4 +30,15 @@ public class EventTests : IDisposable
 	Events.InviteGuest(Event, Guest1);
 	Assert.Equal(1, Event.Guests.Count());
     }
+
+    [Fact]
+    public void Two_invited_Guests_can_have_the_same_name() {
+	var guest1 = new Guest("guest");
+	var guest2 = new Guest("guest");
+
+	Events.InviteGuest(Event, guest1);
+	Events.InviteGuest(Event, guest2);
+
+	Assert.Equal(2, Event.Guests.Count());
+    }
 }
