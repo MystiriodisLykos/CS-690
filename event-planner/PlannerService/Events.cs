@@ -9,6 +9,7 @@ public static class Events {
 
     public static Event Read() {
 	GuestList.Load();
+	DietaryRequirements.Load();
 	return Storage.ReadData<Event>("event") ?? new();
     }
 
