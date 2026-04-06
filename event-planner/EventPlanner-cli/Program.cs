@@ -1,4 +1,4 @@
-﻿namespace EvenPlannerCLI;
+﻿namespace EventPlannerCLI;
 
 using Spectre.Console;
 using PlannerService;
