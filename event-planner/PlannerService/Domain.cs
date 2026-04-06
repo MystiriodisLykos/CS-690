@@ -33,10 +33,10 @@ public class Guest
 internal class KnownGuests
 {
     [DataMember(Name = "GuestList")]
-    internal List<Guest> GuestList { get; set; }
+    internal HashSet<Guest> GuestList { get; set; }
 
     internal KnownGuests() {
-	GuestList = [];
+	GuestList = new();
     }
 }
 
@@ -53,7 +53,7 @@ public class Invitation : INoted
     [DataMember(Name = "Notes")]
     public HashSet<Note> Notes { get; internal set; }
 
-    protected Invitation(Guest guest)
+    internal Invitation(Guest guest)
     {
         Guest = guest;
         Notes = new();
@@ -64,12 +64,12 @@ public class Invitation : INoted
 public class Event : INoted
 {
     [DataMember(Name = "Guests")]
-    public List<Invitation> Guests { get; internal set; }
+    public HashSet<Invitation> Guests { get; internal set; }
     [DataMember(Name = "Notes")]
     public HashSet<Note> Notes { get; internal set; }
 
-    public Event() {
-	Guests = [];
+    internal Event() {
+	Guests = new();
 	Notes = new();
     }
 }

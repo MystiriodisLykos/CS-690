@@ -40,7 +40,7 @@ public static class Notes
 	    Storage.WriteData(path, text);
 	    On.Notes.Add(note);
 	}
-	Storage.WriteData("event", Event);
+	Events.Save(Event);
     }
 
     // public static IEnumerable<(A, IEnumerable<B>)> NoteTree<A, B>(

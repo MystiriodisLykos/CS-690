@@ -42,4 +42,9 @@ public static class Storage
 	}
 	return false;
     }
+
+    public static void Clear() {
+	Data.Clear();
+	EditCallback = null;
+    }
 }

@@ -3,14 +3,19 @@ namespace PlannerService.Test;
 using PlannerService;
 using StorageService;
 
-public class NoteTests // : IDisposable
+[Collection("Serial")]
+public class NoteTests : IDisposable
 {
     private Note note1;
     private Event testEvent;
 
     public NoteTests() {
         note1 = new Note();
-	testEvent = new Event();
+	testEvent = Events.Read();
+    }
+
+    public void Dispose() {
+	Storage.Clear();
     }
 
     [Fact]
