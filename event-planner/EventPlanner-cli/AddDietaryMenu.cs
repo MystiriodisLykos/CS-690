@@ -3,7 +3,7 @@ namespace EventPlannerCLI;
 using Spectre.Console;
 using PlannerService;
 
-class AddDietaryMenu {
+public class AddDietaryMenu {
     // fake requirement to add a new requirement.
     protected readonly static Note fake_requirement = new Note();
 

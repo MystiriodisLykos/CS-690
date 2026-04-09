@@ -2,7 +2,7 @@ namespace EventPlannerCLI;
 
 using PlannerService;
 
-class EventMenu : INestedMenu {
+public class EventMenu : INestedMenu {
     public string MenuName { get; } = "Event";
 
     protected static MenuOfMenus Menu = new(
@@ -17,7 +17,7 @@ class EventMenu : INestedMenu {
     }
 }
 
-class AddEventNote : INestedMenu
+public class AddEventNote : INestedMenu
 {
     public string MenuName { get; } = "Add A Note";
     protected static readonly AddNoteMenu noteMenu = new AddNoteMenu();
@@ -28,7 +28,7 @@ class AddEventNote : INestedMenu
     }
 }
 
-class AddEventDietaryRequirement : INestedMenu
+public class AddEventDietaryRequirement : INestedMenu
 {
     public string MenuName { get; } = "Add A Dietary Requirement";
     protected static readonly AddDietaryMenu dietMenu = new AddDietaryMenu();

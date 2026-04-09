@@ -8,6 +8,7 @@ public static class Storage
 
     // Mock editting function for when EditPath is called.
     static Func<object, object> EditCallback;
+    public static bool UseEditor { get; set; }
 
     static Dictionary<string, object> Data = new();
 
@@ -36,7 +37,7 @@ public static class Storage
     }
 
     public static bool EditPath(string path) {
-	if (Data.ContainsKey(path)) {
+	if (UseEditor && Data.ContainsKey(path)) {
 	    Data[path] = EditCallback(Data.GetValueOrDefault(path, ""));
 	    return true;
 	}

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,7 +6,7 @@
     <RootNamespace>EventPlanner_cli</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <StorageService>..\StorageService\StorageService.csproj</StorageService>
+    <StorageService>..\MockStorageService\MockStorageService.csproj</StorageService>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
       </AdditionalProperties>
     </ProjectReference>
 
-    <PackageReference Include="Spectre.Console" Version="0.54.0" />
+    <ProjectReference Include="..\MockSpectre\MockSpectre.csproj" />
   </ItemGroup>
 
 </Project>

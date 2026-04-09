@@ -3,7 +3,7 @@ namespace EventPlannerCLI;
 using Spectre.Console;
 using PlannerService;
 
-class AddNoteMenu {
+public class AddNoteMenu {
     protected static TextPrompt<string> note_prompt =
 	new TextPrompt<string>("Note:").AllowEmpty();
 

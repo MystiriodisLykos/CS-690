@@ -12,7 +12,7 @@ class Program {
     }
 }
 
-interface INestedMenu
+public interface INestedMenu
 {
     public string MenuName { get; }
 
@@ -22,7 +22,7 @@ interface INestedMenu
     }
 }
 
-class MenuOfMenus
+public class MenuOfMenus
 {
     protected List<INestedMenu> Menus;
     protected string Prompt;
