@@ -43,4 +43,20 @@ public static class DietaryRequirements {
 	GuestList.Save();
 	Events.Save(Event);
     }
+
+    public static IEnumerable<string> AllRequirements(Event Event) {
+	HashSet<string> requirements = new();
+
+	foreach (var requirement in Event.DietaryRequirements) {
+	    requirements.Add(Notes.ReadNote(requirement));
+	}
+
+	foreach (var guest in Event.Guests) {
+	    foreach (var requirement in guest.Guest.DietaryRequirements) {
+		requirements.Add(Notes.ReadNote(requirement));
+	    }
+	}
+
+	return requirements;
+    }
 }
