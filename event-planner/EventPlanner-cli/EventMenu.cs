@@ -1,5 +1,6 @@
 namespace EventPlannerCLI;
 
+using Spectre.Console;
 using PlannerService;
 
 class EventMenu : INestedMenu {
@@ -8,7 +9,8 @@ class EventMenu : INestedMenu {
     protected static MenuOfMenus Menu = new(
         new List<INestedMenu> {
 	    new AddEventNote(),
-	    new AddEventDietaryRequirement()
+	    new AddEventDietaryRequirement(),
+	    new ShowAllRequirements()
 			      },
         "What would you like to do?"
     );
@@ -36,5 +38,21 @@ class AddEventDietaryRequirement : INestedMenu
     public void Run(Event Event)
     {
 	dietMenu.Run(Event, Event);
+    }
+}
+
+class ShowAllRequirements : INestedMenu {
+    public string MenuName { get; } = "Show All Dietary Requirements";
+
+    public void Run(Event Event)
+    {
+	Console.Clear();
+
+	var requirements = DietaryRequirements.AllRequirements(Event);
+
+        AnsiConsole.Write(new Rows(
+	    from requirement in requirements
+	    select new Text(requirement)
+	));
     }
 }
