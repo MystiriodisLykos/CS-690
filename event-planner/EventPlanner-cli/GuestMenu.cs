@@ -140,7 +140,7 @@ class InvitationStatusMenu {
 
 	if (new_status == InvitationStatus.Rejected) {
 	    Events.RejectInvitation(Event, Invitation);
-	} else if (new_status == InvitationStatus.Rejected) {
+	} else if (new_status == InvitationStatus.Accepted) {
 	    Events.AcceptInvitation(Event, Invitation);
 	}
     }
