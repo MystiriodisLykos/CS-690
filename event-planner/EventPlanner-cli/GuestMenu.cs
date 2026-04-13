@@ -121,16 +121,20 @@ class ChangeStatusMenu : INestedMenu
 class InvitationStatusMenu {
 
     public void Run(Event Event, Invitation Invitation) {
+	AnsiConsole.Clear();
+	AnsiConsole.Write(new Text("Guest is currently " + Invitation.InvitationStatus.FriendlyToString()));
+	AnsiConsole.WriteLine();
 
 	// Uses 'Pending' as the quit option.
 	var new_status = AnsiConsole.Prompt(
 	    new SelectionPrompt<InvitationStatus>()
-	    .Title("Select Invitation Status")
+	    .Title("Select New Invitation Status")
 	    .AddChoices([
 			    InvitationStatus.Accepted,
 			    InvitationStatus.Rejected,
 			    InvitationStatus.Pending
 			])
+	    .WrapAround()
 	    .UseConverter(n => n == InvitationStatus.Pending ? "Quit" : n.FriendlyToString())
 	);
 
