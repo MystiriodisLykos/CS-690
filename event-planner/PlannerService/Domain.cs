@@ -66,6 +66,28 @@ internal class KnownGuests
     }
 }
 
+public enum InvitationStatus {
+    Pending,
+    Accepted,
+    Rejected
+}
+
+public static class InvitationStatusExtensions {
+    public static string FriendlyToString(this InvitationStatus s) {
+	switch(s) {
+	    case InvitationStatus.Pending:
+		return "Pending";
+	    case InvitationStatus.Accepted:
+		return "Attending";
+	    case InvitationStatus.Rejected:
+		return "Not Attending";
+	    default:
+		// Should never be thrown, type checker should verify this and it shouldn't be needed.
+		throw new Exception("cannot create to string for unknown InvitationStatus value");
+	}
+    }
+}
+
 [DataContract(Name = "invitation")]
 public class Invitation : INoted
 {
@@ -73,11 +95,14 @@ public class Invitation : INoted
     public Guest Guest { get; internal set; }
     [DataMember(Name = "Notes")]
     public HashSet<Note> Notes { get; internal set; }
+    [DataMember(Name = "Invitation Status")]
+    public InvitationStatus InvitationStatus { get; internal set; }
 
     internal Invitation(Guest guest)
     {
         Guest = guest;
         Notes = new();
+        InvitationStatus = InvitationStatus.Pending;
     }
 }
 

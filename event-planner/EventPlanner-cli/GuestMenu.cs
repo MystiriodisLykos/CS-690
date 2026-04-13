@@ -10,7 +10,8 @@ class GuestPlanner : INestedMenu {
         new List<INestedMenu> {
 	    new InviteGuest(),
 	    new AddGuestNote(),
-	    new AddGuestDietaryRequirement()
+	    new AddGuestDietaryRequirement(),
+	    new ChangeStatusMenu()
 			      },
         "What would you like to do?"
     );
@@ -24,6 +25,8 @@ class InviteGuest : INestedMenu {
 
     // fake guest to have a "no/quit" option in guest selection prompts.
     private readonly static Guest fake_guest = new Guest("No/Create New");
+
+    protected static readonly InvitationStatusMenu invitationMenu = new InvitationStatusMenu();
 
     public void Run(Event Event)
     {
@@ -50,7 +53,9 @@ class InviteGuest : INestedMenu {
                 guest = known_guest;
             }
         }
-	Events.InviteGuest(Event, guest);
+	var invitation = Events.InviteGuest(Event, guest);
+
+	invitationMenu.Run(Event, invitation);
     }
 }
 
@@ -98,5 +103,45 @@ class AddGuestDietaryRequirement : INestedMenu
 	var invitation = SelectGuestMenu.SelectGuest(Event, "Select Guest to Add a Requirement to");
 	if (invitation != null)
 	    dietMenu.Run(Event, invitation.Guest);
+    }
+}
+
+class ChangeStatusMenu : INestedMenu
+{
+    public string MenuName { get; } = "Change Guest Invitation Status";
+    protected static readonly InvitationStatusMenu invitationMenu = new InvitationStatusMenu();
+
+    public void Run(Event Event) {
+	var invitation = SelectGuestMenu.SelectGuest(Event, "Select Guest to change the status of");
+	if (invitation != null)
+	    invitationMenu.Run(Event, invitation);
+    }
+}
+
+class InvitationStatusMenu {
+
+    public void Run(Event Event, Invitation Invitation) {
+	AnsiConsole.Clear();
+	AnsiConsole.Write(new Text("Guest is currently " + Invitation.InvitationStatus.FriendlyToString()));
+	AnsiConsole.WriteLine();
+
+	// Uses 'Pending' as the quit option.
+	var new_status = AnsiConsole.Prompt(
+	    new SelectionPrompt<InvitationStatus>()
+	    .Title("Select New Invitation Status")
+	    .AddChoices([
+			    InvitationStatus.Accepted,
+			    InvitationStatus.Rejected,
+			    InvitationStatus.Pending
+			])
+	    .WrapAround()
+	    .UseConverter(n => n == InvitationStatus.Pending ? "Quit" : n.FriendlyToString())
+	);
+
+	if (new_status == InvitationStatus.Rejected) {
+	    Events.RejectInvitation(Event, Invitation);
+	} else if (new_status == InvitationStatus.Rejected) {
+	    Events.AcceptInvitation(Event, Invitation);
+	}
     }
 }

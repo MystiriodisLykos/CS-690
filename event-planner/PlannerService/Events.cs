@@ -24,4 +24,14 @@ public static class Events {
         Save(Event);
 	return new_invitation;
     }
+
+    public static void RejectInvitation(Event Event, Invitation Invitation) {
+	Invitation.InvitationStatus = InvitationStatus.Rejected;
+	Events.Save(Event);
+    }
+
+    public static void AcceptInvitation(Event Event, Invitation Invitation) {
+	Invitation.InvitationStatus = InvitationStatus.Accepted;
+	Events.Save(Event);
+    }
 }
