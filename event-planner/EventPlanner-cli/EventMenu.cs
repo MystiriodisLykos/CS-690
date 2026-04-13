@@ -10,7 +10,8 @@ class EventMenu : INestedMenu {
         new List<INestedMenu> {
 	    new AddEventNote(),
 	    new AddEventDietaryRequirement(),
-	    new ShowAllRequirements()
+	    new ShowAllRequirements(),
+	    new ShowInvitations()
 			      },
         "What would you like to do?"
     );
@@ -54,5 +55,28 @@ class ShowAllRequirements : INestedMenu {
 	    from requirement in requirements
 	    select new Text(requirement)
 	));
+    }
+}
+
+class ShowInvitations : INestedMenu {
+    public string MenuName { get; } = "Show all Invitations";
+
+    public void Run(Event Event) {
+	AnsiConsole.Clear();
+
+	var invitations = Event.Guests.ToLookup(i => i.InvitationStatus, i => i.Guest);
+
+	var allInvitations = new Tree("")
+	    .Guide(TreeGuide.BoldLine)
+	    .Style(Style.Parse("dim"));
+
+	foreach (var group_ in invitations) {
+	    var groupNode = allInvitations.AddNode(group_.Key.FriendlyToString());
+	    foreach (var invitation in group_) {
+		groupNode.AddNode(invitation.Name);
+	    }
+	}
+
+	AnsiConsole.Write(allInvitations);
     }
 }
