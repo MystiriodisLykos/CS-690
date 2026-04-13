@@ -41,4 +41,45 @@ public class EventTests : IDisposable
 
 	Assert.Equal(2, Event.Guests.Count());
     }
+
+    [Fact]
+    public void invitations_are_pending_by_default() {
+	var invitation = Events.InviteGuest(Event, Guest1);
+
+	Assert.Equal(InvitationStatus.Pending, invitation.InvitationStatus);
+    }
+
+    [Fact]
+    public void invitations_can_be_rejected() {
+	var invitation = Events.InviteGuest(Event, Guest1);
+	Events.RejectInvitation(Event, invitation);
+
+	Assert.Equal(InvitationStatus.Rejected, invitation.InvitationStatus);
+    }
+
+    [Fact]
+    public void invitations_can_be_accepted() {
+	var invitation = Events.InviteGuest(Event, Guest1);
+	Events.AcceptInvitation(Event, invitation);
+
+	Assert.Equal(InvitationStatus.Accepted, invitation.InvitationStatus);
+    }
+
+    [Fact]
+    public void invitations_can_be_accepted_after_rejection() {
+	var invitation = Events.InviteGuest(Event, Guest1);
+	Events.RejectInvitation(Event, invitation);
+	Events.AcceptInvitation(Event, invitation);
+
+	Assert.Equal(InvitationStatus.Accepted, invitation.InvitationStatus);
+    }
+
+    [Fact]
+    public void invitations_can_be_rejected_after_acceptence() {
+	var invitation = Events.InviteGuest(Event, Guest1);
+	Events.AcceptInvitation(Event, invitation);
+	Events.RejectInvitation(Event, invitation);
+
+	Assert.Equal(InvitationStatus.Rejected, invitation.InvitationStatus);
+    }
 }
