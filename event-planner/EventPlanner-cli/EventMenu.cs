@@ -11,7 +11,10 @@ class EventMenu : INestedMenu {
 	    new AddEventNote(),
 	    new AddEventDietaryRequirement(),
 	    new ShowAllRequirements(),
-	    new ShowInvitations()
+	    new ShowInvitations(),
+	    new AddExpense(),
+	    new RemoveExpense(),
+	    new ShowExpenses()
 			      },
         "What would you like to do?"
     );
@@ -78,5 +81,67 @@ class ShowInvitations : INestedMenu {
 	}
 
 	AnsiConsole.Write(allInvitations);
+    }
+}
+
+class AddExpense : INestedMenu {
+    public string MenuName { get; } = "Add Expense";
+
+    public void Run(Event Event) {
+	double amount = AnsiConsole.Ask<double>("Expense Amount: ");
+	Events.AddExpense(Event, amount);
+    }
+}
+
+class RemoveExpense : INestedMenu {
+    public string MenuName { get; } = "Remove Expense";
+
+    // Fake expense for existing without removing any
+    private readonly static Expense fake_expense = new Expense(null, 0.0);
+
+    protected string ExpenseConverter(Expense expense) {
+	if (expense == fake_expense) {
+	    return "Quit";
+	}
+	return $"{expense.Amount} for:\n{Notes.ReadNote(expense.Item)}";
+    }
+
+    public void Run(Event Event) {
+	var expense = AnsiConsole.Prompt(
+	    new SelectionPrompt<Expense>()
+	    .Title("Select Expense To Remove")
+	    .WrapAround()
+	    .AddChoices(Event.Expenses)
+	    .AddChoices(new[] {fake_expense})
+	    .UseConverter(ExpenseConverter)
+	);
+
+	if (expense != fake_expense) {
+	    Events.RemoveExpense(Event, expense);
+	}
+    }
+}
+
+class ShowExpenses : INestedMenu {
+    public string MenuName { get; } = "Show Expenses";
+
+    public void Run(Event Event) {
+	AnsiConsole.Clear();
+
+	var total = 0.0;
+	var tree = new Tree("")
+	    .Guide(TreeGuide.BoldLine)
+	    .Style(Style.Parse("dim"));
+
+	foreach (var expense in Event.Expenses) {
+	    total += expense.Amount;
+	    var node = tree.AddNode($"{expense.Amount} for");
+	    node.AddNode(Notes.ReadNote(expense.Item));
+	}
+
+	AnsiConsole.Write(tree);
+
+	AnsiConsole.Write(new Text($"Total Expenses: {total}"));
+	AnsiConsole.WriteLine();
     }
 }

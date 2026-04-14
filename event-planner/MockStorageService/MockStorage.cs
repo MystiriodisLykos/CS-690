@@ -36,8 +36,9 @@ public static class Storage
     }
 
     public static bool EditPath(string path) {
-	if (Data.ContainsKey(path)) {
-	    Data[path] = EditCallback(Data.GetValueOrDefault(path, ""));
+	var text = EditCallback(Data.GetValueOrDefault(path, ""));
+	if (text != null) {
+	    Data[path] = text;
 	    return true;
 	}
 	return false;
