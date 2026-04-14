@@ -86,8 +86,9 @@ public class EventTests : IDisposable
     [Fact]
     public void events_can_have_expenses_added() {
 	Storage.SetEditCallback(t => "b");
-	Events.AddExpense(Event, 1);
+	Events.AddExpense(Event, 2.2);
 
 	Assert.Single(Event.Expenses);
+	Assert.Equal(2.2, Event.Expenses[0].Amount);
     }
 }

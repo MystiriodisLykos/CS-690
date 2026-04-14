@@ -12,7 +12,8 @@ class EventMenu : INestedMenu {
 	    new AddEventDietaryRequirement(),
 	    new ShowAllRequirements(),
 	    new ShowInvitations(),
-	    new AddExpense()
+	    new AddExpense(),
+	    new ShowExpenses()
 			      },
         "What would you like to do?"
     );
@@ -88,5 +89,29 @@ class AddExpense : INestedMenu {
     public void Run(Event Event) {
 	double amount = AnsiConsole.Ask<double>("Expense Amount: ");
 	Events.AddExpense(Event, amount);
+    }
+}
+
+class ShowExpenses : INestedMenu {
+    public string MenuName { get; } = "Show Expenses";
+
+    public void Run(Event Event) {
+	AnsiConsole.Clear();
+
+	var total = 0.0;
+	var tree = new Tree("")
+	    .Guide(TreeGuide.BoldLine)
+	    .Style(Style.Parse("dim"));
+
+	foreach (var expense in Event.Expenses) {
+	    total += expense.Amount;
+	    var node = tree.AddNode($"{expense.Amount} for");
+	    node.AddNode(Notes.ReadNote(expense.Item));
+	}
+
+	AnsiConsole.Write(tree);
+
+	AnsiConsole.Write(new Text($"Total Expenses: {total}"));
+	AnsiConsole.WriteLine();
     }
 }
