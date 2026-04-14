@@ -13,6 +13,7 @@ class EventMenu : INestedMenu {
 	    new ShowAllRequirements(),
 	    new ShowInvitations(),
 	    new AddExpense(),
+	    new RemoveExpense(),
 	    new ShowExpenses()
 			      },
         "What would you like to do?"
@@ -89,6 +90,35 @@ class AddExpense : INestedMenu {
     public void Run(Event Event) {
 	double amount = AnsiConsole.Ask<double>("Expense Amount: ");
 	Events.AddExpense(Event, amount);
+    }
+}
+
+class RemoveExpense : INestedMenu {
+    public string MenuName { get; } = "Remove Expense";
+
+    // Fake expense for existing without removing any
+    private readonly static Expense fake_expense = new Expense(null, 0.0);
+
+    protected string ExpenseConverter(Expense expense) {
+	if (expense == fake_expense) {
+	    return "Quit";
+	}
+	return $"{expense.Amount} for:\n{Notes.ReadNote(expense.Item)}";
+    }
+
+    public void Run(Event Event) {
+	var expense = AnsiConsole.Prompt(
+	    new SelectionPrompt<Expense>()
+	    .Title("Select Expense To Remove")
+	    .WrapAround()
+	    .AddChoices(Event.Expenses)
+	    .AddChoices(new[] {fake_expense})
+	    .UseConverter(ExpenseConverter)
+	);
+
+	if (expense != fake_expense) {
+	    Events.RemoveExpense(Event, expense);
+	}
     }
 }
 

@@ -41,7 +41,13 @@ public static class Events {
 	if (text != null) {
 	    var expense = new Expense(item, amount);
 	    Event.Expenses.Add(expense);
-	    Events.Save(Event);
+	    Save(Event);
 	}
+    }
+
+    public static void RemoveExpense(Event Event, Expense expense) {
+	Event.Expenses.Remove(expense);
+	Notes.StoreNote(Event, new ExpensesOf(Event), expense.Item, "");
+	Save(Event);
     }
 }

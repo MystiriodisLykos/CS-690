@@ -91,4 +91,14 @@ public class EventTests : IDisposable
 	Assert.Single(Event.Expenses);
 	Assert.Equal(2.2, Event.Expenses[0].Amount);
     }
+
+    [Fact]
+    public void expenses_can_be_removed_from_events() {
+	Storage.SetEditCallback(t => "b");
+	Events.AddExpense(Event, 2.2);
+
+	Events.RemoveExpense(Event, Event.Expenses[0]);
+
+	Assert.Empty(Event.Expenses);
+    }
 }
