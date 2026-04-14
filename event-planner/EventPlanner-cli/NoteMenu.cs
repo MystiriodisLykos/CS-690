@@ -7,7 +7,11 @@ class NoteMenu : INestedMenu {
     public string MenuName { get; } = "Notes";
 
     protected static MenuOfMenus Menu = new(
-        new List<INestedMenu> {new EditNote(), new ShowAllNotes()},
+        new List<INestedMenu> {
+	    new ManageTodos(),
+	    new ShowTodos(),
+	    new EditNote(),
+	    new ShowAllNotes()},
         "What would you like to do?"
     );
     public void Run(Event Event) {
@@ -15,10 +19,8 @@ class NoteMenu : INestedMenu {
     }
 }
 
-class EditNote : INestedMenu
+static class SelectNoteMenu
 {
-    public string MenuName { get; } = "Edit Note";
-
     protected class GroupSelect<T, V>
     {
 	protected string Name;
@@ -45,14 +47,13 @@ class EditNote : INestedMenu
         }
     }
 
-    public void Run(Event Event)
-    {
-
-        var notePrompt = new SelectionPrompt<GroupSelect<Note, INoted>>()
-            .Title("Select Note to Edit")
+    public static (INoted, Note) SelectNote(Event Event, string title) {
+	var notePrompt = new SelectionPrompt<GroupSelect<Note, INoted>>()
+            .Title(title)
             .WrapAround()
             .Mode(SelectionMode.Leaf);
 
+	var notes_exist = false;
 	foreach (var ((name, noteable), notes) in Notes.NoteLabeledTree(Event)) {
 	    // Sentinal object of selction screen, not actually selectable
 	    var group_ = GroupSelect<Note, INoted>.ParentSelect(name);
@@ -66,12 +67,31 @@ class EditNote : INestedMenu
 
 	    if (notes_.Any()) {
 		notePrompt.AddChoiceGroup(group_, notes_.ToList());
+		notes_exist = true;
 	    }
 	}
 
+	if (! notes_exist) {
+	    return (null, null);
+	}
+
         var selection = AnsiConsole.Prompt(notePrompt);
-	var note = selection.Data;
-	var noted = selection.Group;
+	return (selection.Group, selection.Data);
+    }
+}
+
+class EditNote : INestedMenu
+{
+    public string MenuName { get; } = "Edit Note";
+
+    public void Run(Event Event)
+    {
+	var (noted, note) = SelectNoteMenu.SelectNote(Event, "Select Note to Edit");
+
+	if (note == null) {
+	    AnsiConsole.Confirm("No Notes found, please add at least one before trying to edit (Enter to Confrim");
+	    return;
+	}
 
 	var text = Notes.EditNote(Event, noted, note);
         if (text == null)
@@ -105,5 +125,52 @@ class ShowAllNotes : INestedMenu
 	}
 
         AnsiConsole.Write(allNotes);
+    }
+}
+
+class ManageTodos : INestedMenu
+{
+    public string MenuName { get; } = "Manage Todos";
+
+    public void Run(Event Event) {
+	Console.Clear();
+
+	var (_, note) = SelectNoteMenu.SelectNote(Event, "Select Note to mark/umark as Todo");
+
+	if (note == null) {
+	    AnsiConsole.Confirm("No Notes found, please add at least one before trying to mark todos (Enter to Confrim");
+	    return;
+	}
+
+	var is_todo = AnsiConsole.Prompt(
+	    new SelectionPrompt<string>()
+	    .Title("Should be Todo note or not?)")
+	    .AddChoices(new[] {"Yes", "No"})
+	);
+
+	if (is_todo == "Yes") {
+	    Notes.MarkTodo(Event, note);
+	} else {
+	    Notes.UnMarkTodo(Event, note);
+	}
+    }
+}
+
+class ShowTodos : INestedMenu
+{
+    public string MenuName { get; } = "Show Todos";
+
+    public void Run(Event Event) {
+	Console.Clear();
+
+	var TodoNotes = new Tree("")
+	    .Guide(TreeGuide.BoldLine)
+	    .Style(Style.Parse("dim"));
+
+	foreach (var note in Event.TodoNotes) {
+	    TodoNotes.AddNode(Notes.ReadNote(note));
+	}
+
+        AnsiConsole.Write(TodoNotes);
     }
 }

@@ -13,6 +13,28 @@ public static class Notes
 	return Storage.ReadData(NotePath(note));
     }
 
+    public static void MarkTodo(Event Event, Note note) {
+	var can_mark = false;
+	foreach (var guest in Event.Guests) {
+	    if (guest.Notes.Contains(note)) {
+		can_mark = true;
+		break;
+	    }
+	}
+	if (! (can_mark || Event.Notes.Contains(note))) return;
+	foreach (var todo in Event.TodoNotes) {
+	    // Don't add notes already marked as todo.
+	    if (todo == note) return;
+	}
+	Event.TodoNotes.Add(note);
+	Events.Save(Event);
+    }
+
+    public static void UnMarkTodo(Event Event, Note note) {	
+	Event.TodoNotes.Remove(note);
+	Events.Save(Event);
+    }
+
     public static string? EditNote(Event Event, INoted On, Note note)
     {
         if (Storage.EditPath(NotePath(note)))
@@ -32,6 +54,7 @@ public static class Notes
 	string text)
     {
 	/* Store the `note` `On` with `text` for `Event` */
+
 	// TODO: do I need to pass `note` or can I make a new one on the fly?
 	//   Check call sites.
 	//   In fact I think notes should only be returned objects, so that
@@ -41,6 +64,7 @@ public static class Notes
 	if (string.IsNullOrWhiteSpace(text)) {
 	    Storage.RemoveData(path);
 	    On.Notes.Remove(note);
+	    UnMarkTodo(Event, note);
 	} else {
 	    Storage.WriteData(path, text);
 	    On.Notes.Add(note);

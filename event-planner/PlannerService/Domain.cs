@@ -12,6 +12,19 @@ public class Note
     {
         Path = Guid.NewGuid() + ".txt";
     }
+
+    public override bool Equals(object other) {
+	var other_ = other as Note;
+	if (other_ == null) {
+	    return false;
+	}
+	return Path == other_.Path;
+    }
+
+    public override int GetHashCode() {
+	var hash = this.Path.GetHashCode();
+	return hash;
+    }
 }
 
 [DataContract(Name = "expense")]
@@ -147,15 +160,27 @@ public class Event : INoted, IDietaryRequirements, IExpenses
     public HashSet<Invitation> Guests { get; internal set; }
     [DataMember(Name = "Notes")]
     public HashSet<Note> Notes { get; internal set; }
+    [DataMember(Name = "Todos")]
+    public List<Note> TodoNotes { get; internal set; }
     [DataMember(Name = "DietaryRequirements")]
     public HashSet<Note> DietaryRequirements { get; internal set; }
     [DataMember(Name = "Expenses")]
     public List<Expense> Expenses { get; internal set; }
 
-    internal Event() {
+    internal void Defaults() {
 	Guests = new();
 	Notes = new();
+	TodoNotes = new();
 	DietaryRequirements = new();
 	Expenses = new();
+    }
+
+    internal Event() {
+	Defaults();
+    }
+
+    [OnDeserializing()]
+    internal void OnDeserializingMethod(StreamingContext context) {
+	Defaults();
     }
 }
