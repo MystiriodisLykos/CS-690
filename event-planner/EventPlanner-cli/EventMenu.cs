@@ -11,7 +11,8 @@ class EventMenu : INestedMenu {
 	    new AddEventNote(),
 	    new AddEventDietaryRequirement(),
 	    new ShowAllRequirements(),
-	    new ShowInvitations()
+	    new ShowInvitations(),
+	    new AddExpense()
 			      },
         "What would you like to do?"
     );
@@ -78,5 +79,14 @@ class ShowInvitations : INestedMenu {
 	}
 
 	AnsiConsole.Write(allInvitations);
+    }
+}
+
+class AddExpense : INestedMenu {
+    public string MenuName { get; } = "Add Expense";
+
+    public void Run(Event Event) {
+	double amount = AnsiConsole.Ask<double>("Expense Amount: ");
+	Events.AddExpense(Event, amount);
     }
 }

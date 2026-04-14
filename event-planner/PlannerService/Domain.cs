@@ -14,6 +14,19 @@ public class Note
     }
 }
 
+[DataContract(Name = "expense")]
+public class Expense {
+    [DataMember(Name = "item")]
+    public Note Item { get; internal set; }
+    [DataMember(Name = "amount")]
+    public double Amount { get; internal set; }
+
+    public Expense(Note item, double amount) {
+	Amount = amount;
+	Item = item;
+    }
+}
+
 public interface INoted
 {
     public HashSet<Note> Notes { get; }
@@ -22,6 +35,11 @@ public interface INoted
 public interface IDietaryRequirements
 {
     public HashSet<Note> DietaryRequirements { get; }
+}
+
+public interface IExpenses
+{
+    public List<Expense> Expenses { get; }
 }
 
 internal class DietaryRequirementsOf : INoted
@@ -34,6 +52,22 @@ internal class DietaryRequirementsOf : INoted
 
     public HashSet<Note> Notes {
 	get => Of.DietaryRequirements;
+    }
+}
+
+internal class ExpensesOf : INoted
+{
+    /* wrapper class to expose expenses to the note systems */
+    protected IExpenses Of;
+    public ExpensesOf(IExpenses of) {
+	Of = of;
+    }
+
+    public HashSet<Note> Notes {
+	get => (
+	    from expense in Of.Expenses
+	    select expense.Item
+	).ToHashSet();
     }
 }
 
@@ -107,7 +141,7 @@ public class Invitation : INoted
 }
 
 [DataContract(Name = "event")]
-public class Event : INoted, IDietaryRequirements
+public class Event : INoted, IDietaryRequirements, IExpenses
 {
     [DataMember(Name = "Guests")]
     public HashSet<Invitation> Guests { get; internal set; }
@@ -115,10 +149,13 @@ public class Event : INoted, IDietaryRequirements
     public HashSet<Note> Notes { get; internal set; }
     [DataMember(Name = "DietaryRequirements")]
     public HashSet<Note> DietaryRequirements { get; internal set; }
+    [DataMember(Name = "Expenses")]
+    public List<Expense> Expenses { get; internal set; }
 
     internal Event() {
 	Guests = new();
 	Notes = new();
 	DietaryRequirements = new();
+	Expenses = new();
     }
 }

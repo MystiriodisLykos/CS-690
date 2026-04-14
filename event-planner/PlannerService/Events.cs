@@ -34,4 +34,14 @@ public static class Events {
 	Invitation.InvitationStatus = InvitationStatus.Accepted;
 	Events.Save(Event);
     }
+
+    public static void AddExpense(Event Event, double amount) {
+	var item = new Note();
+	var text = Notes.EditNote(Event, new ExpensesOf(Event), item);
+	if (text != null) {
+	    var expense = new Expense(item, amount);
+	    Event.Expenses.Add(expense);
+	    Events.Save(Event);
+	}
+    }
 }

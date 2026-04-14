@@ -82,4 +82,12 @@ public class EventTests : IDisposable
 
 	Assert.Equal(InvitationStatus.Rejected, invitation.InvitationStatus);
     }
+
+    [Fact]
+    public void events_can_have_expenses_added() {
+	Storage.SetEditCallback(t => "b");
+	Events.AddExpense(Event, 1);
+
+	Assert.Single(Event.Expenses);
+    }
 }
