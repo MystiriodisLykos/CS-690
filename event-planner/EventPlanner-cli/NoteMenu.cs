@@ -142,17 +142,7 @@ class ManageTodos : INestedMenu
 	    return;
 	}
 
-	var is_todo = AnsiConsole.Prompt(
-	    new SelectionPrompt<string>()
-	    .Title("Should be Todo note or not?)")
-	    .AddChoices(new[] {"Yes", "No"})
-	);
-
-	if (is_todo == "Yes") {
-	    Notes.MarkTodo(Event, note);
-	} else {
-	    Notes.UnMarkTodo(Event, note);
-	}
+	SetTodoMenu.SetTodo(Event, note);
     }
 }
 
