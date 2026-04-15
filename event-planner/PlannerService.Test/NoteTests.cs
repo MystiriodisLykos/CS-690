@@ -140,4 +140,74 @@ public class NoteTests : IDisposable
 	    }
 	}
     }
+
+    [Fact]
+    public void notes_can_be_marked_as_todo() {
+	Notes.StoreNote(testEvent, testEvent, note1, "test todo");
+	Notes.MarkTodo(testEvent, note1);
+
+	Assert.Single(testEvent.TodoNotes);
+	Assert.Contains(note1, testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void guest_notes_can_be_marked_as_todo() {
+	var invitation = Events.InviteGuest(testEvent, guest1);
+	Notes.StoreNote(testEvent, invitation, note1, "test todo");
+	Notes.MarkTodo(testEvent, note1);
+
+	Assert.Single(testEvent.TodoNotes);
+	Assert.Contains(note1, testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void notes_can_be_unmarked_as_todo() {
+	Notes.StoreNote(testEvent, testEvent, note1, "test todo");
+	Notes.MarkTodo(testEvent, note1);	
+	Notes.UnMarkTodo(testEvent, note1);
+
+	Assert.Empty(testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void notes_not_on_event_or_guest_cannot_be_marked_as_todo() {
+	Notes.MarkTodo(testEvent, note1);
+
+	Assert.Empty(testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void when_note_is_removed_it_is_removed_from_todos() {
+	Notes.StoreNote(testEvent, testEvent, note1, "test todo");
+	Notes.MarkTodo(testEvent, note1);
+
+	Storage.SetEditCallback(t => " ");
+
+	Notes.EditNote(testEvent, testEvent, note1);
+
+	Assert.Empty(testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void todo_marking_order_is_preserved() {
+	Notes.StoreNote(testEvent, testEvent, note1, "a");
+
+	var note2 = new Note();
+	Notes.StoreNote(testEvent, testEvent, note2, "b");
+
+	Notes.MarkTodo(testEvent, note2);
+	Notes.MarkTodo(testEvent, note1);
+
+	Assert.Equal([note2, note1], testEvent.TodoNotes);
+    }
+
+    [Fact]
+    public void marking_a_not_todo_twice_is_the_same_as_once() {
+	Notes.StoreNote(testEvent, testEvent, note1, "a");
+
+	Notes.MarkTodo(testEvent, note1);
+	Notes.MarkTodo(testEvent, note1);
+
+	Assert.Equal([note1], testEvent.TodoNotes);
+    }
 }

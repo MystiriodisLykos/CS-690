@@ -15,5 +15,24 @@ class AddNoteMenu {
 	    text = AnsiConsole.Prompt(note_prompt);
 	}
 	Notes.StoreNote(Event, noted, note, text);
+
+	SetTodoMenu.SetTodo(Event, note);
+    }
+}
+
+
+static class SetTodoMenu {
+    public static void SetTodo(Event Event, Note note) {
+	var is_todo = AnsiConsole.Prompt(
+	    new SelectionPrompt<string>()
+	    .Title("Should be Todo note or not?)")
+	    .AddChoices(new[] {"Yes", "No"})
+	);
+
+	if (is_todo == "Yes") {
+	    Notes.MarkTodo(Event, note);
+	} else {
+	    Notes.UnMarkTodo(Event, note);
+	}
     }
 }
