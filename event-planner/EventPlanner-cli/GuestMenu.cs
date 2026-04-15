@@ -9,9 +9,10 @@ class GuestPlanner : INestedMenu {
     protected static MenuOfMenus Menu = new(
         new List<INestedMenu> {
 	    new InviteGuest(),
+	    new ChangeStatusMenu(),
 	    new AddGuestNote(),
 	    new AddGuestDietaryRequirement(),
-	    new ChangeStatusMenu()
+	    new RemoveGuestDietaryRequirement()
 			      },
         "What would you like to do?"
     );
@@ -101,6 +102,19 @@ class AddGuestDietaryRequirement : INestedMenu
     public void Run(Event Event)
     {
 	var invitation = SelectGuestMenu.SelectGuest(Event, "Select Guest to Add a Requirement to");
+	if (invitation != null)
+	    dietMenu.Run(Event, invitation.Guest);
+    }
+}
+
+class RemoveGuestDietaryRequirement : INestedMenu
+{
+    public string MenuName { get; } = "Remove A Dietary Requirement";
+    protected static readonly RemoveDietaryMenu dietMenu = new RemoveDietaryMenu();
+
+    public void Run(Event Event)
+    {
+	var invitation = SelectGuestMenu.SelectGuest(Event, "Select Guest to Remove a Requirement to");
 	if (invitation != null)
 	    dietMenu.Run(Event, invitation.Guest);
     }
