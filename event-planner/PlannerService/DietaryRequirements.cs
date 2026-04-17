@@ -44,6 +44,16 @@ public static class DietaryRequirements {
 	Events.Save(Event);
     }
 
+    public static void RemoveRequirement(
+	Event Event,
+	IDietaryRequirements On,
+	Note requirement)
+    {
+	var requirementsOn = new DietaryRequirementsOf(On);
+	requirementsOn.Notes.Remove(requirement);
+	Events.Save(Event);
+    }
+
     public static IEnumerable<string> AllRequirements(Event Event) {
 	HashSet<string> requirements = new();
 

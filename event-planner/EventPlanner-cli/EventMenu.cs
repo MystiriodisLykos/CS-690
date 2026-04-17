@@ -8,10 +8,11 @@ class EventMenu : INestedMenu {
 
     protected static MenuOfMenus Menu = new(
         new List<INestedMenu> {
+	    new ShowInvitations(),
 	    new AddEventNote(),
 	    new AddEventDietaryRequirement(),
+	    new RemoveEventDietaryRequirement(),
 	    new ShowAllRequirements(),
-	    new ShowInvitations(),
 	    new AddExpense(),
 	    new RemoveExpense(),
 	    new ShowExpenses()
@@ -38,6 +39,17 @@ class AddEventDietaryRequirement : INestedMenu
 {
     public string MenuName { get; } = "Add A Dietary Requirement";
     protected static readonly AddDietaryMenu dietMenu = new AddDietaryMenu();
+
+    public void Run(Event Event)
+    {
+	dietMenu.Run(Event, Event);
+    }
+}
+
+class RemoveEventDietaryRequirement : INestedMenu
+{
+    public string MenuName { get; } = "Remove A Dietary Requirement";
+    protected static readonly RemoveDietaryMenu dietMenu = new RemoveDietaryMenu();
 
     public void Run(Event Event)
     {
