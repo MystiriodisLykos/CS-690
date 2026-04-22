@@ -26,6 +26,7 @@ static class SetTodoMenu {
 	var is_todo = AnsiConsole.Prompt(
 	    new SelectionPrompt<string>()
 	    .Title("Should be Todo note or not?)")
+	    .WrapAround()
 	    .AddChoices(new[] {"Yes", "No"})
 	);
 
