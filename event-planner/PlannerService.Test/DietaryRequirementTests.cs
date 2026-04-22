@@ -15,7 +15,7 @@ public class DietaryRequirementsTests : IDisposable
         note1 = new Note();
 	note2 = new Note();
 	guest1 = new Guest("guest1");
-	testEvent = Events.Read();
+	testEvent = Events.Read("event");
 	Events.InviteGuest(testEvent, guest1);
 	// Mock storage needs note to exist before it can edit it.
 	Notes.StoreNote(testEvent, testEvent, note1, "b");

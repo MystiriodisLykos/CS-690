@@ -7,8 +7,7 @@ using System.Diagnostics;
 
 class Program {
     static void Main(string[] args) {
-        var Event = Events.Read();
-        EventPlanner.Run(Event);
+        EventPicker.Run();
     }
 }
 
@@ -19,6 +18,10 @@ interface INestedMenu
     public void Run(Event Event)
     {
         throw new NotImplementedException();
+    }
+
+    public bool Break() {
+	return false;
     }
 }
 
@@ -56,9 +59,45 @@ class MenuOfMenus
                     .AddChoices(Menus)
                     .AddChoices(new[] {BackOption})
             );
-            if (menu == BackOption) return;
-            menu.Run(Event);
+	    if (menu == BackOption) return;
+	    menu.Run(Event);
+	    if (menu.Break()) return;
         }
+    }
+}
+
+class EventPicker {
+    public static void Run() {
+	while(true) {
+	    AnsiConsole.Clear();
+	    var selection = AnsiConsole.Prompt(
+		new SelectionPrompt<string>()
+		.Title("Pick event to manage or create new")
+		.WrapAround()
+		.AddChoices(Events.ListEvents())
+		.AddChoices(new[] {"Create New", "Quit"})
+	    );
+
+	    if (selection == "Quit") return;
+	    if (selection == "Create New")
+	    {
+		selection = AnsiConsole.Ask<string>("What is the new event's name?");
+	    }
+	    var Event = Events.Read(selection);
+	    EventPlanner.Run(Event);
+	}
+    }
+}
+
+class DeleteEventMenu : INestedMenu {
+    public string MenuName { get; } = "Delete Event";
+    public void Run(Event Event) {
+	if (AnsiConsole.Confirm($"Confirm deletion of {Event.Name}?", false)) {
+	    Events.Delete(Event);
+	}
+    }
+    public bool Break() {
+	return true;
     }
 }
 
@@ -68,10 +107,11 @@ class EventPlanner {
         new List<INestedMenu> {
 	    new GuestPlanner(),
 	    new EventMenu(),
-	    new NoteMenu()
+	    new NoteMenu(),
+	    new DeleteEventMenu(),
 			      },
         "Select what to Manage",
-        "Exit"
+        "Back"
     );
     public static void Run(Event Event) {
         Menu.Run(Event);

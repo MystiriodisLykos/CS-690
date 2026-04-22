@@ -3,14 +3,30 @@ namespace PlannerService;
 using StorageService;
 
 public static class Events {
-    internal static void Save(Event Event) {
-	Storage.WriteData("event", Event);
+
+    private static string EventsDir(string name) {
+	return Path.Combine("events", name);
     }
 
-    public static Event Read() {
+    internal static void Save(Event Event) {
+	Storage.WriteData(EventsDir(Event.Name), Event);
+    }
+
+    public static Event Read(string name) {
 	GuestList.Load();
 	DietaryRequirements.Load();
-	return Storage.ReadData<Event>("event") ?? new();
+	var Event = Storage.ReadData<Event>(EventsDir(name)) ?? new(name);
+	Event.Name = name;  // Set name if migrating from v3
+	Save(Event);
+	return Event;
+    }
+
+    public static void Delete(Event Event) {
+	Storage.RemoveData(EventsDir(Event.Name));
+    }
+
+    public static IEnumerable<string> ListEvents() {
+	return Storage.ListDir(EventsDir("."));
     }
 
     public static Invitation InviteGuest(Event Event, Guest Guest) {
