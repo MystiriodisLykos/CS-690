@@ -83,9 +83,8 @@ class EventPicker {
 	    {
 		selection = AnsiConsole.Ask<string>("What is the new event's name?");
 	    }
-	    Event = Events.Read(selection);
+	    var Event = Events.Read(selection);
 	    EventPlanner.Run(Event);
-	    Events.Save(Event);
 	}
     }
 }
@@ -93,7 +92,7 @@ class EventPicker {
 class DeleteEventMenu : INestedMenu {
     public string MenuName { get; } = "Delete Event";
     public void Run(Event Event) {
-	if (AnsiConsole.Confirm($"Confirm delection of {Event.Name}?", false)) {
+	if (AnsiConsole.Confirm($"Confirm deletion of {Event.Name}?", false)) {
 	    Events.Delete(Event);
 	}
     }
