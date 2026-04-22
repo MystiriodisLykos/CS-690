@@ -166,6 +166,8 @@ public class Event : INoted, IDietaryRequirements, IExpenses
     public HashSet<Note> DietaryRequirements { get; internal set; }
     [DataMember(Name = "Expenses")]
     public List<Expense> Expenses { get; internal set; }
+    [DataMember(Name = "Name")]
+    public string Name { get; internal set; }
 
     internal void Defaults() {
 	Guests = new();
@@ -175,8 +177,9 @@ public class Event : INoted, IDietaryRequirements, IExpenses
 	Expenses = new();
     }
 
-    internal Event() {
+    internal Event(string name) {
 	Defaults();
+	Name = name;
     }
 
     [OnDeserializing()]

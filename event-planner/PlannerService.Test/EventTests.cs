@@ -4,13 +4,54 @@ using PlannerService;
 using StorageService;
 
 [Collection("Serial")]
+public class EventsTests : IDisposable
+{
+    public void Dispose() {
+	Storage.Clear();
+    }
+
+    [Fact]
+    public void Events_read_creates_event_in_folder() {
+        Events.Read("event");
+
+	Event Event = Storage.ReadData<Event>("events/event");
+	Assert.Equal("event", Event.Name);
+    }
+
+    [Fact]
+    public void Events_read_reads_existing_event() {
+	Events.Read("event");
+	Event Event = Events.Read("event");
+	Assert.Equal("event", Event.Name);
+    }
+
+    [Fact]
+    public void Events_delete_removes_event() {
+	Event Event = Events.Read("event");
+	Events.Delete(Event);
+
+	Event NullEvent = Storage.ReadData<Event>("events/event");
+	Assert.Null(NullEvent);
+    }
+
+    [Fact]
+    public void Events_list_has_all_events() {
+	Events.Read("event1");
+	Events.Read("event2");
+	Events.Read("event3");
+
+	Assert.Equal(["event3", "event2", "event1"], Events.ListEvents());
+    }
+}
+
+[Collection("Serial")]
 public class EventTests : IDisposable
 {
     private Event Event;
     private Guest Guest1;
 
     public EventTests() {
-	Event = Events.Read();
+	Event = Events.Read("event");
 	Guest1 = new Guest("guest 1");
     }
 

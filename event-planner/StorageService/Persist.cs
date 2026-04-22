@@ -10,6 +10,13 @@ public static class Storage
     public static readonly string EnvHome = "EVENT_PLANNER_HOME";
     public static readonly string DataFolder = ".cs-690.bd.event-planner";
 
+    public static IEnumerable<string> ListDir(string directory) {
+	return new DirectoryInfo(PersistPath(directory))
+	    .EnumerateFiles()
+	    .OrderByDescending(f => f.CreationTime)
+	    .Select(f => f.Name);
+    }
+
     public static void WriteData(string path, string text)
     {
         var file_path = PersistPath(path);

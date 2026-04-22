@@ -87,4 +87,15 @@ public class StorageTests : IDisposable
     public void Storage_read_non_existent_generic_is_null() {
 	Assert.Equal(null, Storage.ReadData<TestData>("data-bad"));
     }
+
+    [Fact]
+    public void Storage_ListDir_lists_directory_contents() {
+	Storage.WriteData("dir/a1", "a1 data");
+	Storage.WriteData("dir/a2", "a2 data");
+	Storage.WriteData("dir/a3", "a3 data");
+
+	Storage.WriteData("b1", "b1 data");
+
+	Assert.Equal(["a3", "a2", "a1"], Storage.ListDir("dir/"));
+    }
 }

@@ -11,6 +11,15 @@ public static class Storage
 
     static Dictionary<string, object> Data = new();
 
+    public static IEnumerable<string> ListDir(string directory) {
+	directory = Path.GetDirectoryName(directory);
+	return (
+	    from p in Data.Keys
+	    where p.StartsWith(directory)
+	    select p.Substring(directory.Length+1)
+	).Reverse();
+    }
+
     public static void WriteData(string path, string text) {
 	Data[path] = text;
     }

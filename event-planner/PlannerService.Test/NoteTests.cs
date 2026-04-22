@@ -13,7 +13,7 @@ public class NoteTests : IDisposable
     public NoteTests() {
         note1 = new Note();
 	guest1 = new Guest("guest1");
-	testEvent = Events.Read();
+	testEvent = Events.Read("event");
     }
 
     public void Dispose() {
